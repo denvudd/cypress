@@ -7,22 +7,22 @@ import { migrate } from "drizzle-orm/postgres-js/migrator";
 dotenv.config({ path: ".env" });
 
 if (!process.env.DATABASE_URL) {
-  console.log("Cannot find database url.");
+  console.log("🔴 Cannot find database url.");
 }
 
 const client = postgres(process.env.DATABASE_URL as string, { max: 1 });
 const db = drizzle(client, { schema });
 
-const migrateDB = async () => {
+const migrateDb = async () => {
   try {
-    console.log("Migrating client...");
-
+    console.log("🟠 Migrating client...");
     await migrate(db, { migrationsFolder: "migrations" });
-
-    console.log("Successfully migrated client.");
+    console.log("🟢 Successfully Migrated.");
   } catch (error) {
-    console.log("Failed to migrate client.", error);
+    console.log("🔴 Error Migrating client.", error);
   }
 };
+
+migrateDb();
 
 export default db;
