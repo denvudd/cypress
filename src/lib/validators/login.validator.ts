@@ -8,7 +8,7 @@ export const LoginValidator = z.object({
   password: z
     .string()
     .min(1, { message: "Password is required" })
-    .min(8, { message: "Password must be at least 8 characters" }),
+    .min(6, { message: "Password must be at least 6 characters" }),
 });
 
 export type LoginValidatorSchema = z.infer<typeof LoginValidator>;

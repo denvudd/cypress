@@ -4,8 +4,10 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { type SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+
+import { loginUser } from "@/queries/auth";
 
 import {
   Form,
@@ -15,15 +17,15 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
 import {
   LoginValidator,
   LoginValidatorSchema,
 } from "@/lib/validators/login.validator";
 
 import CypressLogo from "../../../../public/cypresslogo.svg";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { loginUser } from "@/queries/auth";
 
 function LoginPage() {
   const router = useRouter();
