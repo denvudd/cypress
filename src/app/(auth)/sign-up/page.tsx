@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils";
 import CypressLogo from "../../../../public/cypresslogo.svg";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { MailCheck } from "lucide-react";
+import { signUpUser } from "@/queries/auth";
 
 interface SignUpPageProps {}
 
@@ -61,12 +62,18 @@ const SignUpPage: React.FC<SignUpPageProps> = ({}) => {
     },
   });
 
-  const onSubmit: SubmitHandler<SignUpValidatorSchema> = async ({
-    email,
-    password,
-  }) => {};
+  const onSubmit: SubmitHandler<SignUpValidatorSchema> = async (values) => {
+    const { error } = await signUpUser(values);
 
-  const handleSignUp = () => {};
+    if (error) {
+      setSubmitError(error.message);
+      form.reset();
+
+      return undefined;
+    }
+
+    setConfirmation(true);
+  };
 
   const isLoading = form.formState.isSubmitting || form.formState.isLoading;
 
@@ -99,6 +106,7 @@ const SignUpPage: React.FC<SignUpPageProps> = ({}) => {
                   <FormControl>
                     <Input {...field} type="email" placeholder="Email" />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -112,6 +120,7 @@ const SignUpPage: React.FC<SignUpPageProps> = ({}) => {
                   <FormControl>
                     <Input {...field} type="password" placeholder="Password" />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -129,6 +138,7 @@ const SignUpPage: React.FC<SignUpPageProps> = ({}) => {
                       placeholder="Confirm password"
                     />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />

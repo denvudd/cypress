@@ -80,6 +80,7 @@ function LoginPage() {
               <FormControl>
                 <Input {...field} type="email" placeholder="Email" />
               </FormControl>
+              <FormMessage/>
             </FormItem>
           )}
         />
@@ -93,6 +94,7 @@ function LoginPage() {
               <FormControl>
                 <Input {...field} type="password" placeholder="Password" />
               </FormControl>
+              <FormMessage/>
             </FormItem>
           )}
         />
