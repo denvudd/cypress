@@ -5,6 +5,7 @@ import { LoginValidatorSchema } from "@/lib/validators/login.validator";
 import { cookies } from "next/headers";
 import { SignUpValidatorSchema } from "@/lib/validators/sign-up.validator";
 
+/** Login user with credentials */
 export async function loginUser({ email, password }: LoginValidatorSchema) {
   const supabaseClient = createRouteHandlerClient({ cookies });
 
@@ -16,6 +17,7 @@ export async function loginUser({ email, password }: LoginValidatorSchema) {
   return response;
 }
 
+/** Sign up user with credentials and email varifacation */
 export async function signUpUser({ email, password }: SignUpValidatorSchema) {
   const supabaseClient = createRouteHandlerClient({ cookies });
 

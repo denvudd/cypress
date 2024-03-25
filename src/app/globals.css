@@ -60,10 +60,18 @@
   animation: 40s slide linear infinite;
 }
 
+.blured {
+  /* Perfomance hack */
+  will-change: transform;
+  /* To make it works set opacity for background */
+  backdrop-filter: blur(15px) saturate(190%) contrast(65%) brightness(75%);
+}
+
 @keyframes slide {
   from {
     transform: translateX(0);
-  } to {
+  }
+  to {
     transform: translateX(-100%);
   }
 }

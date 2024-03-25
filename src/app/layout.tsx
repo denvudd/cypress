@@ -4,6 +4,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import ThemeProvider from "@/lib/providers/theme.provider";
+import AppStateProvider from "@/lib/providers/app-state.provider";
+import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,10 +21,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
-      <body className={cn("min-h-screen h-full antialiased bg-background", inter.className)}>
+      <body
+        className={cn(
+          "min-h-screen h-full antialiased bg-background",
+          inter.className
+        )}
+      >
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          {children}
+          <AppStateProvider>{children}</AppStateProvider>
         </ThemeProvider>
+        <Toaster richColors theme="system" />
       </body>
     </html>
   );
