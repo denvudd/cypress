@@ -1,21 +1,24 @@
-import TitleSection from "@/components/modules/landing/title-section.module";
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import React from "react";
+import Image from "next/image";
+import { randomUUID } from "crypto";
+
+import TitleSection from "@/components/modules/landing/title-section.module";
+import CustomCard from "@/components/modules/landing/custom-card.module";
+import { Button } from "@/components/ui/button";
+import { CardContent, CardDescription, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 import {
   CLIENTS,
   PRICING_CARDS,
   PRICING_PLANS,
   TESTIMONIAL_USERS,
 } from "@/lib/config/constants";
+import { cn } from "@/lib/utils";
+
 import calendarBanner from "../../../public/cal.png";
 import diamondIcon from "../../../public/icons/diamond.svg";
 import checkIcon from "../../../public/icons/check.svg";
-import { randomUUID } from "crypto";
-import { cn } from "@/lib/utils";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { CardContent, CardDescription, CardTitle } from "@/components/ui/card";
-import CustomCard from "@/components/modules/landing/custom-card.module";
 
 interface LandingPageProps {}
 
@@ -34,10 +37,7 @@ const LandingPage: React.FC<LandingPageProps> = ({}) => {
         </div>
       </section>
       <section
-        className="overflow-hidden flex after:content[''] after:dark:from-brand-dark after:to-transparent 
-      after:from-background after:bg-gradient-to-l after:right-0 after:bottom-0 after:top-0 after:w-20 after:z-10 after:content[''] after:absolute
-       before:dark:from-brand-dark before:to-transparent before:from-background before:bg-gradient-to-r before:absolute before:left-0 
-       before:bottom-0 before:top-0 before:w-20 before:z-10"
+        className="overflow-hidden flex"
       >
         {Array(2)
           .fill(null)

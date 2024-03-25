@@ -19,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
-      <body className={cn("min-h-screen h-full antialiased", inter.className)}>
+      <body className={cn("min-h-screen h-full antialiased bg-background", inter.className)}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           {children}
         </ThemeProvider>
