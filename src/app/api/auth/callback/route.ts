@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 export async function GET(req: NextRequest) {
   const requestURL = new URL(req.url);
   const code = requestURL.searchParams.get("code");
+  const errorDescription = requestURL.searchParams.get("error_description");
 
   if (code) {
     const supabaseClient = createRouteHandlerClient({ cookies });
@@ -12,5 +13,9 @@ export async function GET(req: NextRequest) {
     await supabaseClient.auth.exchangeCodeForSession(code);
   }
 
-  return NextResponse.redirect(`${requestURL.origin}/dashboard`);
+  if (errorDescription === "Email link is invalid or has expired") {
+    return NextResponse.redirect(`${requestURL.origin}/email-expired`);
+  }
+
+  // return NextResponse.redirect(`${requestURL.origin}/dashboard`);
 }

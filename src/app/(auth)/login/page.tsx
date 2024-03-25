@@ -48,6 +48,8 @@ function LoginPage() {
     if (error) {
       form.reset();
       setSubmitError(error.message);
+
+      return undefined;
     }
 
     router.replace("/dashboard");
@@ -80,7 +82,7 @@ function LoginPage() {
               <FormControl>
                 <Input {...field} type="email" placeholder="Email" />
               </FormControl>
-              <FormMessage/>
+              <FormMessage />
             </FormItem>
           )}
         />
@@ -94,7 +96,7 @@ function LoginPage() {
               <FormControl>
                 <Input {...field} type="password" placeholder="Password" />
               </FormControl>
-              <FormMessage/>
+              <FormMessage />
             </FormItem>
           )}
         />

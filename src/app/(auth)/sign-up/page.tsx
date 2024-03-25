@@ -44,14 +44,6 @@ const SignUpPage: React.FC<SignUpPageProps> = ({}) => {
     return searchParams.get("error_description");
   }, [searchParams]);
 
-  const confirmationAndErrorStyles = React.useMemo(
-    () =>
-      cn("bg-primary", {
-        "bg-red-500/10 border-red-500/50 text-red-700": exchangeError,
-      }),
-    [exchangeError]
-  );
-
   const form = useForm<SignUpValidatorSchema>({
     mode: "onChange",
     resolver: zodResolver(SignUpValidator),
@@ -161,18 +153,20 @@ const SignUpPage: React.FC<SignUpPageProps> = ({}) => {
           </Link>
         </span>
         {(confirmation || exchangeError) && (
-          <>
-            <Alert className={confirmationAndErrorStyles}>
-              {!exchangeError && <MailCheck className="size-4" />}
-              <AlertTitle>
-                {exchangeError ? "Link expired" : "Check your email."}
-              </AlertTitle>
-              <AlertDescription>
-                {exchangeError ||
-                  "An email confirmation has been sent to your email inbox."}
-              </AlertDescription>
-            </Alert>
-          </>
+          <Alert
+            className={cn("bg-primary", {
+              "bg-red-500/10 border-red-500/50 text-red-700": exchangeError,
+            })}
+          >
+            {!exchangeError && <MailCheck className="size-4" />}
+            <AlertTitle>
+              {exchangeError ? "Link expired" : "Check your email."}
+            </AlertTitle>
+            <AlertDescription>
+              {exchangeError ||
+                "An email confirmation has been sent to your email inbox."}
+            </AlertDescription>
+          </Alert>
         )}
       </form>
     </Form>
