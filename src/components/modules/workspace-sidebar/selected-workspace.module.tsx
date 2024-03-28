@@ -5,15 +5,18 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Workspace } from "@/types/supabase.types";
 import Link from "next/link";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 interface SelectedWorkspaceProps {
   workspace: Workspace;
-  onClick?: (option: Workspace) => {};
+  onClick?: (option: Workspace) => void;
+  className?: string;
 }
 
 const SelectedWorkspace: React.FC<SelectedWorkspaceProps> = ({
   onClick,
   workspace,
+  className,
 }) => {
   const supabaseClient = createClientComponentClient();
   const [workspaceLogo, setWorkspaceLogo] =
@@ -33,7 +36,10 @@ const SelectedWorkspace: React.FC<SelectedWorkspaceProps> = ({
     <Link
       href={`/dashboard/${workspace.id}`}
       onClick={() => onClick && onClick(workspace)}
-      className="flex rounded-md hover:bg-muted-foreground/10 transition-all flex-row p-2 gap-4 cursor-pointer items-center my-2"
+      className={cn(
+        "flex rounded-md hover:bg-muted-foreground/10 transition-all flex-row p-1 text-sm gap-2 cursor-pointer items-center my-2",
+        className
+      )}
     >
       <Image
         src={workspaceLogo}

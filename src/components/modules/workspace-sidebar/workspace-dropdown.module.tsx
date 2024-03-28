@@ -1,10 +1,21 @@
 "use client";
 
 import React from "react";
-import { Workspace } from "@/types/supabase.types";
+
 import { useAppState } from "@/hooks/use-app-state";
+
 import SelectedWorkspace from "./selected-workspace.module";
 import { Separator } from "@/components/ui/separator";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+import { Workspace } from "@/types/supabase.types";
 
 interface WorkspaceDropdownProps {
   privateWorkspaces: Workspace[] | [];
@@ -47,36 +58,32 @@ const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
 
   return (
     <div className="relative inline-block text-left">
-      <div className="">
-        <span onClick={() => setIsOpen(!isOpen)}>
+      <DropdownMenu>
+        <DropdownMenuTrigger className="justify-start text-left focus-visible:border-none select-none outline-none">
           {selectedOption ? (
             <SelectedWorkspace workspace={selectedOption} />
           ) : (
             "Select a workspace"
           )}
-        </span>
-      </div>
-      {isOpen && (
-        <div className="origin-top-right absolute w-full rounded-lg shadow-md z-50 h-[190px] bg-black/10 blured group overflow-auto border">
-          <div className="rounded-md flex flex-col">
-            <div className="p-2">
-              {!!privateWorkspaces.length && (
-                <>
-                  <p className="text-muted-foreground text-sm">Private</p>
-                  <Separator className="my-2" />
-                  {privateWorkspaces.map((option: Workspace) => (
-                    <SelectedWorkspace
-                      key={option.id}
-                      workspace={option}
-                      onClick={handleSelect}
-                    />
-                  ))}
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="h-[190px] bg-popover/20 w-[228px] blured">
+          <DropdownMenuLabel>Private</DropdownMenuLabel>
+          <DropdownMenuSeparator className="bg-muted-foreground/20" />
+          {privateWorkspaces.map((option: Workspace) => (
+            <DropdownMenuItem
+              className="p-0 hover:bg-none focus:bg-none"
+              key={option.id}
+            >
+              <SelectedWorkspace
+                key={option.id}
+                workspace={option}
+                className="my-0"
+                onClick={handleSelect}
+              />
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 };
