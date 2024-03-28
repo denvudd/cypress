@@ -2,17 +2,32 @@
 
 import React from "react";
 import { usePathname } from "next/navigation";
-import { Workspace } from "@/types/supabase.types";
+import { Folder, Workspace } from "@/types/supabase.types";
 
-export type AppFoldersType = Workspace & {
+export type AppFoldersType = Folder & {
+  files: File[] | [];
+};
+
+export type AppWorkspacesType = Workspace & {
   folders: AppFoldersType[] | [];
 };
 
 interface AppState {
-  workspaces: AppFoldersType[] | [];
+  workspaces: AppWorkspacesType[] | [];
 }
 
-export type Action = { type: "ADD_WORKSPACE"; payload: AppFoldersType };
+export type Action =
+  | { type: "ADD_WORKSPACE"; payload: AppWorkspacesType }
+  | { type: "DELETE_WORKSPACE"; payload: string }
+  | {
+      type: "UPDATE_WORKSPACE";
+      payload: { workspace: Partial<AppWorkspacesType>; workspaceId: string };
+    }
+  | {
+      type: "SET_WORKSPACES";
+      payload: { workspaces: AppWorkspacesType[] | [] };
+    };
+
 const initialState: AppState = { workspaces: [] };
 
 const appReducer = (
@@ -24,6 +39,31 @@ const appReducer = (
       return {
         ...state,
         workspaces: [...state.workspaces, action.payload],
+      };
+    case "DELETE_WORKSPACE":
+      return {
+        ...state,
+        workspaces: state.workspaces.filter(
+          (workspace) => workspace.id !== action.payload
+        ),
+      };
+    case "UPDATE_WORKSPACE":
+      return {
+        ...state,
+        workspaces: state.workspaces.map((workspace) => {
+          if (workspace.id === action.payload.workspaceId) {
+            return {
+              ...workspace,
+              ...action.payload.workspace,
+            };
+          }
+          return workspace;
+        }),
+      };
+    case "SET_WORKSPACES":
+      return {
+        ...state,
+        workspaces: action.payload.workspaces,
       };
     default:
       return initialState;

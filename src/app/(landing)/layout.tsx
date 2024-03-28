@@ -3,7 +3,7 @@ import React from "react";
 
 const LandingLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
   return (
-    <main className="h-full">
+    <main className="h-full layout-scrollbar-obtrusive">
       <LandingHeader />
       {children}
     </main>

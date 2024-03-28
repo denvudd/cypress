@@ -1,5 +1,13 @@
 import { sql } from "drizzle-orm";
-import { boolean, integer, jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  integer,
+  jsonb,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+} from "drizzle-orm/pg-core";
 import { prices, subscriptionStatus, users } from "../../../migrations/schema";
 
 export const workspaces = pgTable("workspaces", {
@@ -57,14 +65,14 @@ export const subscriptions = pgTable("subscriptions", {
   userId: uuid("user_id")
     .notNull()
     .references(() => users.id),
+  created: timestamp("created", { withTimezone: true, mode: "string" })
+    .default(sql`now()`)
+    .notNull(),
   status: subscriptionStatus("status"),
   metadata: jsonb("metadata"),
   priceId: text("price_id").references(() => prices.id),
   quantity: integer("quantity"),
   cancelAtPeriodEnd: boolean("cancel_at_period_end"),
-  created: timestamp("created", { withTimezone: true, mode: "string" })
-    .default(sql`now()`)
-    .notNull(),
   currentPeriodStart: timestamp("current_period_start", {
     withTimezone: true,
     mode: "string",
@@ -97,4 +105,23 @@ export const subscriptions = pgTable("subscriptions", {
     withTimezone: true,
     mode: "string",
   }).default(sql`now()`),
+});
+
+export const collaborators = pgTable("collaborators", {
+  workspaceId: uuid("workspace_id")
+    .notNull()
+    .references(() => workspaces.id, {
+      onDelete: "cascade",
+    }),
+  createdAt: timestamp("created_at", {
+    withTimezone: true,
+    mode: "string",
+  })
+    .defaultNow()
+    .notNull(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, {
+      onDelete: "cascade",
+    }),
 });

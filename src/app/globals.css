@@ -23,10 +23,13 @@
   --input: 220 13% 91%;
   --ring: 262.1 83.3% 57.8%;
   --radius: 0.3rem;
+  --scrollbar-width: 12px;
+  --scrollbar-min-size: 32px;
+  --scrollbar-color: #4c4e6a66;
 }
 
 .dark {
-  --background: 224 71.4% 4.1%;
+  --background: 234 17% 12%;
   --foreground: 210 20% 98%;
   --card: 224 71.4% 4.1%;
   --card-foreground: 210 20% 98%;
@@ -42,9 +45,12 @@
   --accent-foreground: 210 20% 98%;
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 210 20% 98%;
-  --border: 215 27.9% 16.9%;
+  --border: 236 15% 20%;
   --input: 215 27.9% 16.9%;
   --ring: 263.4 70% 50.4%;
+  --scrollbar-width: 12px;
+  --scrollbar-min-size: 32px;
+  --scrollbar-color: #4c4e6a66;
 }
 
 @layer base {
@@ -65,6 +71,16 @@
   will-change: transform;
   /* To make it works set opacity for background */
   backdrop-filter: blur(15px) saturate(190%) contrast(65%) brightness(75%);
+}
+
+body.layout-scrollbar-obtrusive * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-color) transparent;
+}
+
+.text-render {
+  text-rendering: optimizelegibility;
+  text-size-adjust: 100%;
 }
 
 @keyframes slide {

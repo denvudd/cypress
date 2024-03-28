@@ -36,9 +36,7 @@ const LandingPage: React.FC<LandingPageProps> = ({}) => {
           </div>
         </div>
       </section>
-      <section
-        className="overflow-hidden flex"
-      >
+      <section className="overflow-hidden flex">
         {Array(2)
           .fill(null)
           .map(() => (
@@ -80,7 +78,11 @@ const LandingPage: React.FC<LandingPageProps> = ({}) => {
         </div>
       </section>
       <section className="relative">
-        <div className="w-full blur-[120px] rounded-full h-32 absolute bg-brand-primaryPurple/50 z-10 top-56" />
+        <div
+          aria-hidden
+          aria-label="Blur"
+          className="w-full blur-[120px] rounded-full h-44 absolute bg-brand-primaryPurple/20 z-10 top-56"
+        />
 
         <div className="mt-20 px-4 sm:px-6 flex flex-col overflow-x-hidden overflow-visible">
           <TitleSection

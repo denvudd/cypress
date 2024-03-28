@@ -3,6 +3,7 @@
 import db from "@/lib/supabase/db";
 import { Subscription } from "@/types/supabase.types";
 
+/** Get subscription by user id */
 export async function getUserSubscriptionStatus(userId: string) {
   try {
     const data = await db.query.subscriptions.findFirst({
