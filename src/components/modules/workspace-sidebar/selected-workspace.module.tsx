@@ -45,8 +45,8 @@ const SelectedWorkspace: React.FC<SelectedWorkspaceProps> = ({
       <Image
         src={workspaceLogo}
         alt="Workspace Logo"
-        width={26}
-        height={26}
+        width={20}
+        height={20}
         objectFit="cover"
       />
       <div className="flex flex-col">

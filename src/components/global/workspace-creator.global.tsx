@@ -81,7 +81,7 @@ const WorkspaceCreator: React.FC<WorkspaceCreatorProps> = ({}) => {
       if (permissions === "shared") {
         await createWorkspace(payload);
         const res = await addCollaborators(collaborators, uniqueId);
-        console.log(res)
+        console.log(res);
         router.refresh();
       }
 
@@ -155,14 +155,16 @@ const WorkspaceCreator: React.FC<WorkspaceCreatorProps> = ({}) => {
               addCollaborator(collaborator);
             }}
           >
-            <Button
-              variant="secondary"
-              type="button"
-              className="text-sm animate-in fade-in-5 zoom-in-95"
-            >
-              <Plus />
-              Add collaborators
-            </Button>
+            <div className="flex justify-center">
+              <Button
+                variant="secondary"
+                type="button"
+                className="text-sm animate-in fade-in-5 zoom-in-95 flex items-center gap-2"
+              >
+                <Plus className="size-4" />
+                Add collaborators
+              </Button>
+            </div>
           </CollaboratorSearch>
           <div className="mt-4 space-y-1 animate-in fade-in-5 zoom-in-95">
             <Label className="text-muted-foreground">
@@ -174,7 +176,7 @@ const WorkspaceCreator: React.FC<WorkspaceCreatorProps> = ({}) => {
                 collaborators.map((collaborator) => (
                   <div
                     key={collaborator.id}
-                    className="p-4 flex justify-between items-center"
+                    className="p-4 flex justify-between items-center animate-in fade-in-5 zoom-in-95"
                   >
                     <div className="flex gap-4 items-center">
                       <Avatar>
