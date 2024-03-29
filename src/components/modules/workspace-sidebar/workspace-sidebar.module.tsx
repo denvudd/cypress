@@ -12,8 +12,13 @@ import {
 } from "@/queries/workspace";
 
 import WorkspaceDropdown from "./workspace-dropdown.module";
+import WorkspaceCreator from "@/components/global/workspace-creator.global";
+import PlanUsage from "./plan-usage.module";
+import CustomDialog from "@/components/global/custom-dialog.global";
+import { Plus, PlusCircle } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import WorkspaceNavigation from "./workspace-navigation.module";
 
 interface WorkspaceSidebarProps {
   workspaceId: string;
@@ -35,9 +40,6 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = async ({
   const { data: subscription, error: subscriptionError } =
     await getUserSubscriptionStatus(user.id);
   const { data: folders, error: foldersError } = await getFolders(workspaceId);
-
-  console.log("subscriptionError", subscriptionError);
-  console.log("foldersError", foldersError);
 
   if (subscriptionError || foldersError) redirect("/dashboard");
 
@@ -70,6 +72,23 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = async ({
           privateWorkspaces={privateWorkspaces}
           sharedWorkspaces={sharedWorkspaces}
         />
+        <CustomDialog
+          trigger={
+            <button className="flex transition-all cursor-pointer text-sm font-medium rounded-md hover:bg-muted text-muted-foreground justify-between items-center gap-2 p-2 w-full">
+              Create workspace
+              <Plus className="size-3" />
+            </button>
+          }
+          header="Create a workspace"
+          content={<WorkspaceCreator />}
+          description="Workspace give you the power to collaborate with others. You 
+        can change your workspace privacy settings after creating workspace too."
+        />
+        <PlanUsage
+          foldersLength={folders?.length || 0}
+          subscription={subscription}
+        />
+        <WorkspaceNavigation workspaceId={workspaceId} />
       </div>
     </aside>
   );

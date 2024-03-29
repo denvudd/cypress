@@ -5,7 +5,6 @@ import React from "react";
 import { useAppState } from "@/hooks/use-app-state";
 
 import SelectedWorkspace from "./selected-workspace.module";
-import CustomDialog from "@/components/global/custom-dialog.global";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,9 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { Workspace } from "@/types/supabase.types";
-import WorkspaceCreator from "@/components/global/workspace-creator.global";
-import { Plus } from "lucide-react";
-
+import { CaretSortIcon } from "@radix-ui/react-icons";
 interface WorkspaceDropdownProps {
   privateWorkspaces: Workspace[];
   sharedWorkspaces: Workspace[];
@@ -33,7 +30,6 @@ const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
   defaultValue,
 }) => {
   const { dispatch, state } = useAppState();
-  const [isOpen, setIsOpen] = React.useState<boolean>(false);
   const [selectedOption, setSelectedOption] = React.useState<
     Workspace | undefined
   >(defaultValue);
@@ -55,18 +51,14 @@ const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
 
   const handleSelect = (option: Workspace) => {
     setSelectedOption(option);
-    setIsOpen(false);
   };
 
   return (
-    <div className="relative inline-block text-left">
+    <div className="relative inline-block text-left w-full">
       <DropdownMenu>
-        <DropdownMenuTrigger className="justify-start text-left focus-visible:border-none select-none outline-none">
-          {selectedOption ? (
-            <SelectedWorkspace workspace={selectedOption} />
-          ) : (
-            "Select a workspace"
-          )}
+        <DropdownMenuTrigger className="text-left focus-visible:border-none select-none outline-none w-full flex items-center justify-between pr-1.5">
+          {selectedOption && <SelectedWorkspace workspace={selectedOption} />}
+          <CaretSortIcon className="size-4 text-muted-foreground flex-shrink-0" />
         </DropdownMenuTrigger>
         <DropdownMenuContent className="h-[190px] overflow-y-auto w-[228px]">
           <DropdownMenuLabel>Private</DropdownMenuLabel>
@@ -136,20 +128,6 @@ const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
           )}
         </DropdownMenuContent>
       </DropdownMenu>
-      <CustomDialog
-        trigger={
-          <div className="flex transition-all text-sm font-medium hover:bg-muted justify-center items-center gap-2 p-2 w-full">
-            <div className="text-muted-foreground rounded-full flex items-center justify-center">
-              <Plus className="size-4" />
-            </div>
-            Create workspace
-          </div>
-        }
-        header="Create a workspace"
-        content={<WorkspaceCreator />}
-        description="Workspace give you the power to collaborate with others. You 
-        can change your workspace privacy settings after creating workspace too."
-      />
     </div>
   );
 };

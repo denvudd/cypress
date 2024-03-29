@@ -85,7 +85,7 @@ const WorkspaceCreator: React.FC<WorkspaceCreatorProps> = ({}) => {
         router.refresh();
       }
 
-      toast.success("Workspace created successfully!");
+      toast.success(`Workspace "${title}" created successfully!`);
       setIsWorkspaceLoading(false);
     }
   };

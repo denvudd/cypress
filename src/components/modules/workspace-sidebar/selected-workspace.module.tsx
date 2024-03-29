@@ -38,7 +38,7 @@ const SelectedWorkspace: React.FC<SelectedWorkspaceProps> = ({
       href={`/dashboard/${workspace.id}`}
       onClick={() => onClick && onClick(workspace)}
       className={cn(
-        "flex rounded-md hover:bg-muted-foreground/10 transition-all flex-row p-1 text-sm font-medium gap-2 cursor-pointer items-center my-2",
+        "flex rounded-md hover:bg-muted-foreground/10 transition-all flex-row p-2 text-sm font-medium gap-2 cursor-pointer items-center my-2",
         className
       )}
     >
