@@ -5,7 +5,7 @@ import React from "react";
 import { useAppState } from "@/hooks/use-app-state";
 
 import SelectedWorkspace from "./selected-workspace.module";
-import { Separator } from "@/components/ui/separator";
+import CustomDialog from "@/components/global/custom-dialog.global";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -66,24 +66,81 @@ const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
             "Select a workspace"
           )}
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="h-[190px] bg-popover/20 w-[228px] blured">
+        <DropdownMenuContent className="h-[190px] overflow-y-auto bg-popover/20 w-[228px] blured">
           <DropdownMenuLabel>Private</DropdownMenuLabel>
           <DropdownMenuSeparator className="bg-muted-foreground/20" />
-          {privateWorkspaces.map((option: Workspace) => (
-            <DropdownMenuItem
-              className="p-0 hover:bg-none focus:bg-none"
-              key={option.id}
-            >
-              <SelectedWorkspace
+          {!!privateWorkspaces.length ? (
+            privateWorkspaces.map((option) => (
+              <DropdownMenuItem
+                className="p-0 hover:bg-none focus:bg-none"
                 key={option.id}
-                workspace={option}
-                className="my-0"
-                onClick={handleSelect}
-              />
-            </DropdownMenuItem>
-          ))}
+              >
+                <SelectedWorkspace
+                  key={option.id}
+                  workspace={option}
+                  className="my-0"
+                  onClick={handleSelect}
+                />
+              </DropdownMenuItem>
+            ))
+          ) : (
+            <div className="w-full py-1.5 text-muted-foreground text-sm text-center">
+              No workspaces.
+            </div>
+          )}
+
+          <DropdownMenuLabel>Shared</DropdownMenuLabel>
+          <DropdownMenuSeparator className="bg-muted-foreground/20" />
+          {!!sharedWorkspaces.length ? (
+            sharedWorkspaces.map((option) => (
+              <DropdownMenuItem
+                className="p-0 hover:bg-none focus:bg-none"
+                key={option.id}
+              >
+                <SelectedWorkspace
+                  key={option.id}
+                  workspace={option}
+                  className="my-0"
+                  onClick={handleSelect}
+                />
+              </DropdownMenuItem>
+            ))
+          ) : (
+            <div className="w-full py-1.5 text-muted-foreground text-sm text-center">
+              No workspaces.
+            </div>
+          )}
+
+          <DropdownMenuLabel>Collaborating</DropdownMenuLabel>
+          <DropdownMenuSeparator className="bg-muted-foreground/20" />
+          {!!collaboratingWorkspaces.length ? (
+            collaboratingWorkspaces.map((option) => (
+              <DropdownMenuItem
+                className="p-0 hover:bg-none focus:bg-none"
+                key={option.id}
+              >
+                <SelectedWorkspace
+                  key={option.id}
+                  workspace={option}
+                  className="my-0"
+                  onClick={handleSelect}
+                />
+              </DropdownMenuItem>
+            ))
+          ) : (
+            <div className="w-full py-1.5 text-muted-foreground text-sm text-center">
+              No workspaces.
+            </div>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
+      <CustomDialog
+        trigger=""
+        header="Create a workspace"
+        content=""
+        description="Workspace give you the power to collaborate with others. You 
+        can change your workspace privacy settings after creating workspace too."
+      />
     </div>
   );
 };

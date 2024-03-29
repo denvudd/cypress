@@ -81,11 +81,7 @@ export const AppStateContext = React.createContext<
   | undefined
 >(undefined);
 
-interface AppStateProviderProps {
-  children: React.ReactNode;
-}
-
-const AppStateProvider: React.FC<AppStateProviderProps> = ({ children }) => {
+const AppStateProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [state, dispatch] = React.useReducer(appReducer, initialState);
   const pathname = usePathname();
 

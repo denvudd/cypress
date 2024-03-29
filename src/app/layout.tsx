@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import ThemeProvider from "@/lib/providers/theme.provider";
 import AppStateProvider from "@/lib/providers/app-state.provider";
 import { Toaster } from "sonner";
+import { SupabaseUserProvider } from "@/lib/providers/supabase-user.provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,9 +29,11 @@ export default function RootLayout({
         )}
       >
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          <AppStateProvider>{children}</AppStateProvider>
+          <SupabaseUserProvider>
+            <AppStateProvider>{children}</AppStateProvider>
+          </SupabaseUserProvider>
         </ThemeProvider>
-        <Toaster richColors theme="system" />
+        <Toaster richColors theme="system" pauseWhenPageIsHidden />
       </body>
     </html>
   );
