@@ -17,5 +17,5 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(`${requestURL.origin}/email-expired`);
   }
 
-  // return NextResponse.redirect(`${requestURL.origin}/dashboard`);
+  return NextResponse.redirect(`${requestURL.origin}/dashboard`);
 }

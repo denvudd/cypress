@@ -4,6 +4,9 @@ import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { LoginValidatorSchema } from "@/lib/validators/login.validator";
 import { cookies } from "next/headers";
 import { SignUpValidatorSchema } from "@/lib/validators/sign-up.validator";
+import { users } from "../../migrations/schema";
+import { ilike } from "drizzle-orm";
+import db from "@/lib/supabase/db";
 
 /** Login user with credentials */
 export async function loginUser({ email, password }: LoginValidatorSchema) {
@@ -44,4 +47,15 @@ export async function signUpUser({ email, password }: SignUpValidatorSchema) {
   });
 
   return response;
+}
+/** Search users from their email */
+export async function searchUser(email: string) {
+  if (!email) return [];
+
+  const accounts = db
+    .select()
+    .from(users)
+    .where(ilike(users.email, `${email}%`));
+
+  return accounts;
 }

@@ -5,15 +5,15 @@ import { usePathname } from "next/navigation";
 import { Folder, Workspace } from "@/types/supabase.types";
 
 export type AppFoldersType = Folder & {
-  files: File[] | [];
+  files: File[];
 };
 
 export type AppWorkspacesType = Workspace & {
-  folders: AppFoldersType[] | [];
+  folders: AppFoldersType[];
 };
 
 interface AppState {
-  workspaces: AppWorkspacesType[] | [];
+  workspaces: AppWorkspacesType[];
 }
 
 export type Action =
@@ -25,7 +25,7 @@ export type Action =
     }
   | {
       type: "SET_WORKSPACES";
-      payload: { workspaces: AppWorkspacesType[] | [] };
+      payload: { workspaces: AppWorkspacesType[] };
     };
 
 const initialState: AppState = { workspaces: [] };

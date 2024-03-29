@@ -1,11 +1,12 @@
 "use client";
 
 import React from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { Workspace } from "@/types/supabase.types";
 import Link from "next/link";
 import Image from "next/image";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+
 import { cn } from "@/lib/utils";
+import { Workspace } from "@/types/supabase.types";
 
 interface SelectedWorkspaceProps {
   workspace: Workspace;
@@ -37,7 +38,7 @@ const SelectedWorkspace: React.FC<SelectedWorkspaceProps> = ({
       href={`/dashboard/${workspace.id}`}
       onClick={() => onClick && onClick(workspace)}
       className={cn(
-        "flex rounded-md hover:bg-muted-foreground/10 transition-all flex-row p-1 text-sm gap-2 cursor-pointer items-center my-2",
+        "flex rounded-md hover:bg-muted-foreground/10 transition-all flex-row p-1 text-sm font-medium gap-2 cursor-pointer items-center my-2",
         className
       )}
     >

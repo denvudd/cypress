@@ -16,11 +16,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { Workspace } from "@/types/supabase.types";
+import WorkspaceCreator from "@/components/global/workspace-creator.global";
+import { Plus } from "lucide-react";
 
 interface WorkspaceDropdownProps {
-  privateWorkspaces: Workspace[] | [];
-  sharedWorkspaces: Workspace[] | [];
-  collaboratingWorkspaces: Workspace[] | [];
+  privateWorkspaces: Workspace[];
+  sharedWorkspaces: Workspace[];
+  collaboratingWorkspaces: Workspace[];
   defaultValue: Workspace | undefined;
 }
 
@@ -66,7 +68,7 @@ const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
             "Select a workspace"
           )}
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="h-[190px] overflow-y-auto bg-popover/20 w-[228px] blured">
+        <DropdownMenuContent className="h-[190px] overflow-y-auto w-[228px]">
           <DropdownMenuLabel>Private</DropdownMenuLabel>
           <DropdownMenuSeparator className="bg-muted-foreground/20" />
           {!!privateWorkspaces.length ? (
@@ -135,9 +137,16 @@ const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
         </DropdownMenuContent>
       </DropdownMenu>
       <CustomDialog
-        trigger=""
+        trigger={
+          <div className="flex transition-all text-sm font-medium hover:bg-muted justify-center items-center gap-2 p-2 w-full">
+            <div className="text-muted-foreground rounded-full flex items-center justify-center">
+              <Plus className="size-4" />
+            </div>
+            Create workspace
+          </div>
+        }
         header="Create a workspace"
-        content=""
+        content={<WorkspaceCreator />}
         description="Workspace give you the power to collaborate with others. You 
         can change your workspace privacy settings after creating workspace too."
       />

@@ -33,7 +33,7 @@ export default function RootLayout({
             <AppStateProvider>{children}</AppStateProvider>
           </SupabaseUserProvider>
         </ThemeProvider>
-        <Toaster richColors theme="system" pauseWhenPageIsHidden />
+        <Toaster richColors theme="system" pauseWhenPageIsHidden closeButton />
       </body>
     </html>
   );

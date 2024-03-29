@@ -36,6 +36,9 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = async ({
     await getUserSubscriptionStatus(user.id);
   const { data: folders, error: foldersError } = await getFolders(workspaceId);
 
+  console.log("subscriptionError", subscriptionError);
+  console.log("foldersError", foldersError);
+
   if (subscriptionError || foldersError) redirect("/dashboard");
 
   const [privateWorkspaces, collaboratingWorkspaces, sharedWorkspaces] =
@@ -54,7 +57,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = async ({
   return (
     <aside
       className={cn(
-        "hidden sm:flex sm:flex-col w-[280px] shrink-0 p-4 md:gap-4 justify-between",
+        "hidden sm:flex sm:flex-col w-[280px] shrink-0 p-4 md:gap-4 justify-between bg-sidebar z-40",
         {
           className,
         }

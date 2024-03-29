@@ -18,7 +18,7 @@ export async function getFolders(workspaceId: string) {
   }
 
   try {
-    const results: Folder[] | [] = await db
+    const results: Folder[] = await db
       .select()
       .from(folders)
       .orderBy(folders.createdAt)

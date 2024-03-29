@@ -9,7 +9,7 @@ export async function middleware(req: NextRequest) {
 
   // Redirect user to login if not authenticated
   if (req.nextUrl.pathname.startsWith("/dashboard")) {
-    if (!session) {
+    if (!session.session) {
       return NextResponse.redirect(new URL("/login", req.url));
     }
   }
@@ -38,7 +38,7 @@ export async function middleware(req: NextRequest) {
   //   }
 
   if (["/login", "/sign-up"].includes(req.nextUrl.pathname)) {
-    if (session) {
+    if (session.session) {
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }
   }

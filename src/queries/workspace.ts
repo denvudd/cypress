@@ -88,7 +88,7 @@ export async function getSharedWorkspaces(userId: string) {
   if (!userId) return [];
 
   const sharedWorkspaces: Workspace[] = await db
-    .select({
+    .selectDistinct({
       id: workspaces.id,
       createdAt: workspaces.createdAt,
       workspaceOwner: workspaces.workspaceOwner,
