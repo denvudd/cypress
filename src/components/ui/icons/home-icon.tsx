@@ -1,13 +1,15 @@
 import React, { FC } from 'react';
 
-interface CypressHomeIconProps {}
-const CypressHomeIcon: FC<CypressHomeIconProps> = () => {
+interface CypressHomeIconProps extends React.SVGAttributes<SVGSVGElement> {}
+const CypressHomeIcon: FC<CypressHomeIconProps> = ({className, ...props}) => {
   return (
     <svg
       width="24"
       height="24"
       viewBox="0 0 24 24"
       fill="none"
+      className={className}
+      {...props}
       xmlns="http://www.w3.org/2000/svg"
     >
       <path

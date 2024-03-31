@@ -35,3 +35,16 @@ export async function getFolders(workspaceId: string) {
     };
   }
 }
+
+export async function createFolder(folder: Folder) {
+  try {
+    const response = await db.insert(folders).values(folder);
+
+    return { data: null, error: null };
+  } catch (error) {
+    return {
+      data: null,
+      error: `Error: ${error}`,
+    };
+  }
+}

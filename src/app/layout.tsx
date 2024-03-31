@@ -1,12 +1,14 @@
-import db from "@/lib/supabase/db";
 import { Inter } from "next/font/google";
 import type { Metadata } from "next";
-import "./globals.css";
-import { cn } from "@/lib/utils";
+
 import ThemeProvider from "@/lib/providers/theme.provider";
 import AppStateProvider from "@/lib/providers/app-state.provider";
 import { Toaster } from "sonner";
 import { SupabaseUserProvider } from "@/lib/providers/supabase-user.provider";
+import { TooltipProvider } from "@/components/ui/tooltip";
+
+import "./globals.css";
+import { cn } from "@/lib/utils";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,7 +32,9 @@ export default function RootLayout({
       >
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <SupabaseUserProvider>
-            <AppStateProvider>{children}</AppStateProvider>
+            <AppStateProvider>
+              <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
+            </AppStateProvider>
           </SupabaseUserProvider>
         </ThemeProvider>
         <Toaster richColors theme="system" pauseWhenPageIsHidden closeButton />

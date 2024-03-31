@@ -16,6 +16,7 @@ import {
 
 import { Workspace } from "@/types/supabase.types";
 import { CaretSortIcon } from "@radix-ui/react-icons";
+import Image from "next/image";
 interface WorkspaceDropdownProps {
   privateWorkspaces: Workspace[];
   sharedWorkspaces: Workspace[];
@@ -56,9 +57,24 @@ const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
   return (
     <div className="relative inline-block text-left w-full">
       <DropdownMenu>
-        <DropdownMenuTrigger className="text-left focus-visible:border-none select-none outline-none w-full flex items-center justify-between pr-1.5">
-          {selectedOption && <SelectedWorkspace workspace={selectedOption} />}
-          <CaretSortIcon className="size-4 text-muted-foreground flex-shrink-0" />
+        <DropdownMenuTrigger className="text-left focus-visible:border-none select-none outline-none w-full">
+          {selectedOption && (
+            <div className="flex w-full justify-between items-center rounded-md hover:bg-accent transition-all flex-row p-2 text-sm font-medium gap-2 cursor-pointer my-2">
+              <Image
+                src={selectedOption.logo || "/cypresslogo.svg"}
+                alt="Workspace Logo"
+                width={20}
+                height={20}
+                objectFit="cover"
+              />
+              <div className="flex flex-col">
+                <p className="w-[170px] overflow-hidden overflow-ellipsis whitespace-nowrap">
+                  {selectedOption.title}
+                </p>
+              </div>
+              <CaretSortIcon className="size-4 text-muted-foreground flex-shrink-0" />
+            </div>
+          )}
         </DropdownMenuTrigger>
         <DropdownMenuContent className="h-[190px] overflow-y-auto w-[228px]">
           <DropdownMenuLabel>Private</DropdownMenuLabel>

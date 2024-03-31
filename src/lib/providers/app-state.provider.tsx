@@ -26,6 +26,14 @@ export type Action =
   | {
       type: "SET_WORKSPACES";
       payload: { workspaces: AppWorkspacesType[] };
+    }
+  | {
+      type: "SET_FOLDERS";
+      payload: { workspaceId: string; folders: AppFoldersType[] };
+    }
+  | {
+      type: "ADD_FOLDER";
+      payload: { workspaceId: string; folder: AppFoldersType };
     };
 
 const initialState: AppState = { workspaces: [] };
@@ -64,6 +72,38 @@ const appReducer = (
       return {
         ...state,
         workspaces: action.payload.workspaces,
+      };
+    case "SET_FOLDERS":
+      return {
+        ...state,
+        workspaces: state.workspaces.map((workspace) => {
+          if (workspace.id === action.payload.workspaceId) {
+            return {
+              ...workspace,
+              folders: action.payload.folders.sort(
+                (a, b) =>
+                  new Date(a.createdAt).getTime() -
+                  new Date(b.createdAt).getTime()
+              ),
+            };
+          }
+
+          return workspace;
+        }),
+      };
+    case "ADD_FOLDER":
+      return {
+        ...state,
+        workspaces: state.workspaces.map((workspace) => {
+          return {
+            ...workspace,
+            folders: [...workspace.folders, action.payload.folder].sort(
+              (a, b) =>
+                new Date(a.createdAt).getTime() -
+                new Date(b.createdAt).getTime()
+            ),
+          };
+        }),
       };
     default:
       return initialState;
