@@ -31,7 +31,9 @@ const FoldersList: React.FC<FoldersListProps> = ({
 }) => {
   const { subscription } = useSupabaseUser();
   const { state: appState, folderId, dispatch } = useAppState();
+
   const [folders, setFolders] = React.useState<Folder[]>(defaultFolders);
+  const [favoriteFolders, setFavoriteFolders] = React.useState<Folder[]>([]);
 
   React.useEffect(() => {
     if (!!defaultFolders.length) {
@@ -62,6 +64,10 @@ const FoldersList: React.FC<FoldersListProps> = ({
         ?.folders || []
     );
   }, [appState, workspaceId]);
+
+  React.useEffect(() => {
+    setFavoriteFolders(folders?.filter((folder) => folder.inFavorite) || []);
+  }, [folders]);
 
   const handleAddFolder = async () => {
     if (folders?.length >= MAX_FOLDERS_FREE_PLAN && !subscription) {
@@ -102,38 +108,69 @@ const FoldersList: React.FC<FoldersListProps> = ({
   };
 
   return (
-    <>
-      <div className="flex sticky z-20 top-0 w-full h-7 group/title justify-between items-center text-muted-foreground">
-        <div className="text-muted-foreground font-medium text-sm">Folders</div>
+    <div className="flex flex-col pb-20">
+      {favoriteFolders && !!favoriteFolders.length && (
+        <div>
+          <div className="flex sticky z-20 top-0 w-full my-2 group/title justify-between items-center text-muted-foreground">
+            <div className="text-muted-foreground font-medium text-sm">
+              Favorite
+            </div>
+          </div>
+          <Accordion
+            type="multiple"
+            className="pb-0"
+            defaultValue={[folderId || ""]}
+          >
+            {favoriteFolders.map((folder) => (
+              <FolderDropdown
+                key={folder.id}
+                title={folder.title}
+                listType="folder"
+                id={folder.id}
+                inFavorite={folder.inFavorite}
+                iconId={folder.iconId}
+              />
+            ))}
+          </Accordion>
+        </div>
+      )}
 
-        <Tooltip delayDuration={300}>
-          <TooltipTrigger>
-            <PlusIcon
-              className="size-4 cursor-pointer"
-              onClick={handleAddFolder}
-            />
-          </TooltipTrigger>
-          <TooltipContent>Create folder</TooltipContent>
-        </Tooltip>
+      <div>
+        <div className="flex sticky z-20 top-0 w-full my-2 group/title justify-between items-center text-muted-foreground">
+          <div className="text-muted-foreground font-medium text-sm">
+            Private
+          </div>
+
+          <Tooltip delayDuration={300}>
+            <TooltipTrigger>
+              <PlusIcon
+                className="size-4 cursor-pointer"
+                onClick={handleAddFolder}
+              />
+            </TooltipTrigger>
+            <TooltipContent>Create folder</TooltipContent>
+          </Tooltip>
+        </div>
+        <Accordion
+          type="multiple"
+          className="pb-0"
+          defaultValue={[folderId || ""]}
+        >
+          {folders
+            .filter((folder) => !folder.inTrash)
+            .map((folder) => (
+              <FolderDropdown
+                key={folder.id}
+                title={folder.title}
+                listType="folder"
+                id={folder.id}
+                inFavorite={folder.inFavorite}
+                iconId={folder.iconId}
+              />
+            ))}
+        </Accordion>
       </div>
-      <Accordion
-        type="multiple"
-        defaultValue={[folderId || ""]}
-        className="pb-20"
-      >
-        {folders
-          .filter((folder) => !folder.inTrash)
-          .map((folder) => (
-            <FolderDropdown
-              key={folder.id}
-              title={folder.title}
-              listType="folder"
-              id={folder.id}
-              iconId={folder.iconId}
-            />
-          ))}
-      </Accordion>
-    </>
+    </div>
   );
 };
 

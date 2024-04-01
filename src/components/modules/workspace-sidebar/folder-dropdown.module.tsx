@@ -10,6 +10,7 @@ import {
   LinkIcon,
   PlusIcon,
   Star,
+  StarOff,
   TrashIcon,
 } from "lucide-react";
 
@@ -47,6 +48,7 @@ interface FolderDropdownProps {
   title: string;
   listType: "folder" | "file";
   iconId: string;
+  inFavorite?: string | null;
   disabled?: boolean;
 }
 
@@ -55,6 +57,7 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
   id,
   listType,
   title,
+  inFavorite,
   disabled,
 }) => {
   const router = useRouter();
@@ -121,7 +124,7 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [folderId, id, workspaceId]);
 
   if (!workspaceId) return null;
 
@@ -203,6 +206,66 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
     }
 
     toast.success("File created successfully!");
+  };
+
+  const handleMoveToFavorite = async () => {
+    if (!user?.email || !workspaceId) return undefined;
+
+    const pathId = id.split("folder");
+
+    if (listType === "folder") {
+      dispatch({
+        type: "UPDATE_FOLDER",
+        payload: {
+          folder: { inFavorite: `Moved by ${user?.email}` },
+          folderId: pathId[0],
+          workspaceId,
+        },
+      });
+
+      const { data, error } = await updateFolder(
+        { inFavorite: `Moved by ${user?.email}` },
+        pathId[0]
+      );
+
+      if (error) {
+        toast.error("Error! Could not move the folder to favorite", {
+          description: "Please try again later",
+        });
+      }
+
+      toast.success("Folder moved to favorite");
+    }
+  };
+
+  const handleRemoveFromFavorite = async () => {
+    if (!user?.email || !workspaceId) return undefined;
+
+    const pathId = id.split("folder");
+
+    if (listType === "folder") {
+      dispatch({
+        type: "UPDATE_FOLDER",
+        payload: {
+          folder: { inFavorite: "" },
+          folderId: pathId[0],
+          workspaceId,
+        },
+      });
+
+      const { data, error } = await updateFolder(
+        { inFavorite: "" },
+        pathId[0]
+      );
+
+      if (error) {
+        toast.error("Error! Could not move the folder to favorite", {
+          description: "Please try again later",
+        });
+      }
+
+      toast.success("Folder moved to favorite");
+    }
   };
 
   const handleMoveToTrash = async () => {
@@ -324,10 +387,9 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
         toast.error("Error! Could not update your file title", {
           description: "Please try again later",
         });
-      } 
+      }
 
       toast.success("File title updated successfully!");
-        
     }
   };
 
@@ -430,11 +492,25 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
           className="min-w-[260px] font-medium"
           onCloseAutoFocus={(e) => e.preventDefault()}
         >
-          {listType === "folder" && (
+          {listType === "folder" && !inFavorite ? (
             <>
-              <DropdownMenuItem className="flex items-center gap-2">
+              <DropdownMenuItem
+                className="flex items-center gap-2"
+                onClick={handleMoveToFavorite}
+              >
                 <Star className="size-4" />
-                Add to favorites
+                Add to Favorites
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-muted-foreground/20" />
+            </>
+          ) : (
+            <>
+              <DropdownMenuItem
+                className="flex items-center gap-2"
+                onClick={handleRemoveFromFavorite}
+              >
+                <StarOff className="size-4" />
+                Remove from Favorites
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-muted-foreground/20" />
             </>
@@ -493,7 +569,7 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <AccordionContent>
+      <AccordionContent className="pb-0">
         {appState.workspaces
           .find((workspace) => workspace.id === workspaceId)
           ?.folders.find((folder) => folder.id === id)
