@@ -36,9 +36,27 @@ export async function getFolders(workspaceId: string) {
   }
 }
 
+/** Create folder */
 export async function createFolder(folder: Folder) {
   try {
     const response = await db.insert(folders).values(folder);
+
+    return { data: null, error: null };
+  } catch (error) {
+    return {
+      data: null,
+      error: `Error: ${error}`,
+    };
+  }
+}
+
+/** Update folder by folder ID */
+export async function updateFolder(folder: Partial<Folder>, folderId: string) {
+  try {
+    const response = await db
+      .update(folders)
+      .set(folder)
+      .where(eq(folders.id, folderId));
 
     return { data: null, error: null };
   } catch (error) {

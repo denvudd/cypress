@@ -92,12 +92,10 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = async ({
         />
         <WorkspaceNavigation workspaceId={workspaceId} />
         <ScrollArea className="h-[450px] overflow-auto relative">
-          <div
-            aria-hidden
-            aria-label="Blur"
-            className="pointer-events-none w-full absolute bottom-0 h-20 bg-gradient-to-t from-background to-transparent z-40"
+          <FoldersList
+            defaultFolders={folders || []}
+            workspaceId={workspaceId}
           />
-          <FoldersList defaultFolders={folders || []} workspaceId={workspaceId} />
         </ScrollArea>
       </div>
     </aside>

@@ -17,6 +17,7 @@ import { createFolder } from "@/queries/folder";
 import { toast } from "sonner";
 import { MAX_FOLDERS_FREE_PLAN } from "@/lib/config/constants";
 import { Accordion } from "@/components/ui/accordion";
+import FolderDropdown from "./folder-dropdown.module";
 
 interface FoldersListProps {
   defaultFolders: Folder[];
@@ -29,28 +30,33 @@ const FoldersList: React.FC<FoldersListProps> = ({
 }) => {
   const { subscription } = useSupabaseUser();
   const { state: appState, folderId, dispatch } = useAppState();
-  const [folders, setFolders] = React.useState<AppFoldersType[]>([]);
+  const [folders, setFolders] = React.useState<Folder[]>(defaultFolders);
+  // console.log("folders", folders)
 
   React.useEffect(() => {
-    if (defaultFolders.length === 0) return;
+    if (!!defaultFolders.length) {
+      dispatch({
+        type: "SET_FOLDERS",
+        payload: {
+          workspaceId,
+          folders: defaultFolders.map((folder) => {
+            const folders =
+              appState.workspaces.find((w) => w.id === workspaceId)?.folders ||
+              [];
+            const files = folders.find((f) => f.id === folder.id)?.files || [];
 
-    const workspace = appState.workspaces.find((ws) => ws.id === workspaceId);
-    if (!workspace) return;
-
-    const updatedFolders = defaultFolders.map((folder) => {
-      const matchingFolder = workspace.folders.find((f) => f.id === folder.id);
-      const files = matchingFolder ? matchingFolder.files : [];
-
-      return { ...folder, files };
-    });
-
-    dispatch({
-      type: "SET_FOLDERS",
-      payload: { workspaceId, folders: updatedFolders },
-    });
+            return {
+              ...folder,
+              files,
+            };
+          }),
+        },
+      });
+    }
   }, [defaultFolders, workspaceId]);
 
   React.useEffect(() => {
+    // console.log('find', appState.workspaces.find((workspace) => workspace.id === workspaceId))
     setFolders(
       appState.workspaces.find((workspace) => workspace.id === workspaceId)
         ?.folders || []
@@ -115,7 +121,13 @@ const FoldersList: React.FC<FoldersListProps> = ({
         {folders
           .filter((folder) => !folder.inTrash)
           .map((folder) => (
-            <div className="" key={folder.id}></div>
+            <FolderDropdown
+              key={folder.id}
+              title={folder.title}
+              listType="folder"
+              id={folder.id}
+              iconId={folder.iconId}
+            />
           ))}
       </Accordion>
     </>

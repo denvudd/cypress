@@ -2,7 +2,7 @@
 
 import React from "react";
 import { usePathname } from "next/navigation";
-import { Folder, Workspace } from "@/types/supabase.types";
+import { Folder, Workspace, File } from "@/types/supabase.types";
 
 export type AppFoldersType = Folder & {
   files: File[];
@@ -34,6 +34,14 @@ export type Action =
   | {
       type: "ADD_FOLDER";
       payload: { workspaceId: string; folder: AppFoldersType };
+    }
+  | {
+      type: "UPDATE_FOLDER";
+      payload: {
+        folder: Partial<AppFoldersType>;
+        workspaceId: string;
+        folderId: string;
+      };
     };
 
 const initialState: AppState = { workspaces: [] };
@@ -103,6 +111,25 @@ const appReducer = (
                 new Date(b.createdAt).getTime()
             ),
           };
+        }),
+      };
+    case "UPDATE_FOLDER":
+      return {
+        ...state,
+        workspaces: state.workspaces.map((workspace) => {
+          if (workspace.id === action.payload.workspaceId) {
+            return {
+              ...workspace,
+              folders: workspace.folders.map((folder) => {
+                if (folder.id === action.payload.folderId) {
+                  return { ...folder, ...action.payload.folder };
+                }
+
+                return folder;
+              }),
+            };
+          }
+          return workspace;
         }),
       };
     default:
