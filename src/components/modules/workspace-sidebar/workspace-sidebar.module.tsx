@@ -43,7 +43,9 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = async ({
     await getUserSubscriptionStatus(user.id);
   const { data: folders, error: foldersError } = await getFolders(workspaceId);
 
-  if (subscriptionError || foldersError) redirect("/dashboard");
+  // if (subscriptionError || foldersError) redirect("/dashboard");
+  // console.log(subscriptionError)
+  // console.log(foldersError)
 
   const [privateWorkspaces, collaboratingWorkspaces, sharedWorkspaces] =
     await Promise.all([

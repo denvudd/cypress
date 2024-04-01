@@ -32,7 +32,6 @@ const FoldersList: React.FC<FoldersListProps> = ({
   const { subscription } = useSupabaseUser();
   const { state: appState, folderId, dispatch } = useAppState();
   const [folders, setFolders] = React.useState<Folder[]>(defaultFolders);
-  // console.log("folders", folders)
 
   React.useEffect(() => {
     if (!!defaultFolders.length) {
@@ -66,6 +65,7 @@ const FoldersList: React.FC<FoldersListProps> = ({
 
   const handleAddFolder = async () => {
     if (folders?.length >= MAX_FOLDERS_FREE_PLAN && !subscription) {
+      // WIP
     }
 
     const newFolder: Folder = {
@@ -74,7 +74,8 @@ const FoldersList: React.FC<FoldersListProps> = ({
       createdAt: new Date().toISOString(),
       iconId: "📁",
       inTrash: null,
-      title: "Untitled Folder",
+      inFavorite: null,
+      title: `Untitled Folder (${folders.length + 1})`,
       workspaceId,
     };
 
@@ -102,7 +103,7 @@ const FoldersList: React.FC<FoldersListProps> = ({
 
   return (
     <>
-      <div className="flex sticky z-20 top-0 w-full h-10 group/title justify-between items-center text-muted-foreground">
+      <div className="flex sticky z-20 top-0 w-full h-7 group/title justify-between items-center text-muted-foreground">
         <div className="text-muted-foreground font-medium text-sm">Folders</div>
 
         <Tooltip delayDuration={300}>

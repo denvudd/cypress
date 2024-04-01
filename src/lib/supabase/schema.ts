@@ -44,6 +44,7 @@ export const folders = pgTable('folders', {
   iconId: text('icon_id').notNull(),
   data: text('data'),
   inTrash: text('in_trash'),
+  inFavorite: text("in_favorite"),
   workspaceId: uuid('workspace_id')
     .notNull()
     .references(() => workspaces.id, {

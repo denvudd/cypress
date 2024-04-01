@@ -1,4 +1,4 @@
-import { pgTable, pgEnum, uuid, timestamp, text, foreignKey, jsonb, boolean, bigint, integer } from "drizzle-orm/pg-core"
+import { pgTable, pgEnum, uuid, timestamp, foreignKey, text, jsonb, boolean, bigint, integer } from "drizzle-orm/pg-core"
   import { sql } from "drizzle-orm"
 
 export const keyStatus = pgEnum("key_status", ['default', 'valid', 'invalid', 'expired'])
@@ -26,8 +26,8 @@ export const files = pgTable("files", {
 	iconId: text("icon_id").notNull(),
 	data: text("data"),
 	inTrash: text("in_trash"),
-	workspaceId: uuid("workspace_id").notNull(),
-	folderId: uuid("folder_id").notNull(),
+	workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id, { onDelete: "cascade" } ),
+	folderId: uuid("folder_id").notNull().references(() => folders.id, { onDelete: "cascade" } ),
 });
 
 export const folders = pgTable("folders", {
@@ -37,7 +37,8 @@ export const folders = pgTable("folders", {
 	iconId: text("icon_id").notNull(),
 	data: text("data"),
 	inTrash: text("in_trash"),
-	workspaceId: uuid("workspace_id").notNull(),
+	workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id, { onDelete: "cascade" } ),
+	inFavorite: text("in_favorite"),
 });
 
 export const workspaces = pgTable("workspaces", {
@@ -99,6 +100,7 @@ export const prices = pgTable("prices", {
 	trialPeriodDays: integer("trial_period_days"),
 	metadata: jsonb("metadata"),
 });
+
 
 export const subscriptions = pgTable("subscriptions", {
 	id: text("id").primaryKey().notNull(),

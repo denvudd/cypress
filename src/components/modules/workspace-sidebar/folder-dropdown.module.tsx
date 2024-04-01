@@ -2,46 +2,52 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-
-import { useAppState } from "@/hooks/use-app-state";
-import { AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { cn } from "@/lib/utils";
-import EmojiPicker from "@/components/global/emoji-picker.global";
-import { updateFolder } from "@/queries/folder";
+import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
+import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import {
+  ExternalLink,
+  LinkIcon,
+  PlusIcon,
+  Star,
+  TrashIcon,
+} from "lucide-react";
+
+import { updateFolder } from "@/queries/folder";
+import { createFile, updateFile } from "@/queries/file";
+
+import EmojiPicker from "@/components/global/emoji-picker.global";
+import {
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  ExternalLink,
-  LinkIcon,
-  Pencil,
-  PlusIcon,
-  Star,
-  Trash,
-  TrashIcon,
-} from "lucide-react";
-import { DotsHorizontalIcon, Pencil2Icon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+import { useSupabaseUser } from "@/hooks/user-supabase-user";
+import { useAppState } from "@/hooks/use-app-state";
+import { cn } from "@/lib/utils";
+import { File } from "@/types/supabase.types";
+
 interface FolderDropdownProps {
   id: string;
   title: string;
   listType: "folder" | "file";
   iconId: string;
   disabled?: boolean;
-  children?: React.ReactNode;
 }
 
 const FolderDropdown: React.FC<FolderDropdownProps> = ({
@@ -49,11 +55,10 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
   id,
   listType,
   title,
-  children,
   disabled,
 }) => {
   const router = useRouter();
-  const supabaseClient = createClientComponentClient();
+  const { user } = useSupabaseUser();
   const { state: appState, dispatch, workspaceId, folderId } = useAppState();
 
   const [isEditing, setIsEditing] = React.useState<boolean>(false);
@@ -77,6 +82,46 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
 
     return file?.title ?? title;
   }, [appState, listType, workspaceId, id, title]);
+
+  React.useEffect(() => {
+    const handleKeyDown = async (event: KeyboardEvent) => {
+      const isCopyLink = event.ctrlKey && event.key === "l";
+      const isMoveToTrash = event.ctrlKey && event.key === "Backspace";
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (isCopyLink) {
+        if (listType === "folder") {
+          navigator.clipboard.writeText(
+            `${window.location.origin}/dashboard/${workspaceId}/${id}`
+          );
+        }
+
+        if (listType === "file") {
+          navigator.clipboard.writeText(
+            `${window.location.origin}/dashboard/${workspaceId}/${folderId}/${id}`
+          );
+        }
+
+        toast.success("Link copied to clipboard!");
+
+        return undefined;
+      }
+
+      if (isMoveToTrash) {
+        console.log("move to trash");
+        await handleMoveToTrash();
+        return undefined;
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   if (!workspaceId) return null;
 
@@ -128,8 +173,90 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
           description: "Please try again later",
         });
       }
+    }
+  };
 
-      toast.success("Folder icon updated successfully");
+  const handleAddNewFile = async () => {
+    if (!workspaceId) return;
+    const newFile: File = {
+      folderId: id,
+      data: null,
+      createdAt: new Date().toISOString(),
+      inTrash: null,
+      title: "Untitled",
+      iconId: "📄",
+      id: uuidv4(),
+      workspaceId,
+    };
+
+    dispatch({
+      type: "ADD_FILE",
+      payload: { file: newFile, folderId: id, workspaceId },
+    });
+
+    const { data, error } = await createFile(newFile);
+
+    if (error) {
+      toast.error("Error! Could not create your file", {
+        description: "Please try again later",
+      });
+    }
+
+    toast.success("File created successfully!");
+  };
+
+  const handleMoveToTrash = async () => {
+    if (!user?.email || !workspaceId) return undefined;
+
+    const pathId = id.split("folder");
+
+    if (listType === "folder") {
+      dispatch({
+        type: "UPDATE_FOLDER",
+        payload: {
+          folder: { inTrash: `Deleted by ${user?.email}` },
+          folderId: pathId[0],
+          workspaceId,
+        },
+      });
+
+      const { data, error } = await updateFolder(
+        { inTrash: `Deleted by ${user?.email}` },
+        pathId[0]
+      );
+
+      if (error) {
+        toast.error("Error! Could not move the folder to trash", {
+          description: "Please try again later",
+        });
+      }
+
+      toast.success("Folder moved to trash");
+    }
+
+    if (listType === "file") {
+      dispatch({
+        type: "UPDATE_FILE",
+        payload: {
+          file: { inTrash: `Deleted by ${user?.email}` },
+          folderId: pathId[0],
+          workspaceId,
+          fileId: pathId[1],
+        },
+      });
+
+      const { data, error } = await updateFile(
+        { inTrash: `Deleted by ${user?.email}` },
+        pathId[1]
+      );
+
+      if (error) {
+        toast.error("Error! Could not move the file to trash", {
+          description: "Please try again later",
+        });
+      }
+
+      toast.success("File moved to trash");
     }
   };
 
@@ -149,13 +276,24 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
       });
     }
   };
+
   const handleFileTitleChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
+    if (!workspaceId || !folderId) return;
+
     const fId = id.split("folder");
 
     if (fId.length === 2 && fId[1]) {
-      // dispatch()
+      dispatch({
+        type: "UPDATE_FILE",
+        payload: {
+          file: { title: event.target.value },
+          folderId,
+          workspaceId,
+          fileId: fId[1],
+        },
+      });
     }
   };
 
@@ -180,7 +318,16 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
     if (fId.length === 2 && fId[1]) {
       if (!fileTitle) return undefined;
 
-      // await updateTitle
+      const { data, error } = await updateFile({ title: fileTitle }, fId[1]);
+
+      if (error) {
+        toast.error("Error! Could not update your file title", {
+          description: "Please try again later",
+        });
+      } 
+
+      toast.success("File title updated successfully!");
+        
     }
   };
 
@@ -191,16 +338,17 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
         event.stopPropagation();
         handleControlItemClick(event);
       }}
-      className={cn("relative", {
+      className={cn("relative my-2 border-b-0 border-white", {
         "border-none text-md": isFolder,
-        "border-none ml-6 text-[16px] py-1": !isFolder,
+        "ml-6 pl-2 text-[16px] border-solid border-l border-l-muted-foreground/30":
+          !isFolder,
       })}
     >
       <DropdownMenu onOpenChange={(value) => setIsDropdownOpen(value)}>
         <AccordionTrigger
           id={listType}
           className="p-2 text-muted-foreground text-sm w-full"
-          disabled={listType === "file"}
+          disabled={listType === "file" || disabled}
         >
           <div
             className={cn(
@@ -262,7 +410,12 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
               {listType === "folder" && !isEditing && (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-5 w-5">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-5 w-5"
+                      onClick={handleAddNewFile}
+                    >
                       <PlusIcon className="size-4" />
                     </Button>
                   </TooltipTrigger>
@@ -277,11 +430,15 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
           className="min-w-[260px] font-medium"
           onCloseAutoFocus={(e) => e.preventDefault()}
         >
-          <DropdownMenuItem className="flex items-center gap-2">
-            <Star className="size-4" />
-            Add to favorites
-          </DropdownMenuItem>
-          <DropdownMenuSeparator className="bg-muted-foreground/20" />
+          {listType === "folder" && (
+            <>
+              <DropdownMenuItem className="flex items-center gap-2">
+                <Star className="size-4" />
+                Add to favorites
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-muted-foreground/20" />
+            </>
+          )}
           <DropdownMenuItem
             className="flex items-center gap-2"
             onClick={() => {
@@ -304,7 +461,10 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
             Copy link
             <DropdownMenuShortcut>Ctrl + L</DropdownMenuShortcut>
           </DropdownMenuItem>
-          <DropdownMenuItem className="flex items-center gap-2">
+          <DropdownMenuItem
+            className="flex items-center gap-2"
+            onClick={handleMoveToTrash}
+          >
             <TrashIcon className="size-4" />
             Delete
             <DropdownMenuShortcut>Ctrl + ⌫</DropdownMenuShortcut>
@@ -333,6 +493,25 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      <AccordionContent>
+        {appState.workspaces
+          .find((workspace) => workspace.id === workspaceId)
+          ?.folders.find((folder) => folder.id === id)
+          ?.files.filter((file) => !file.inTrash)
+          .map((file) => {
+            const customFileId = `${id}folder${file.id}`;
+
+            return (
+              <FolderDropdown
+                key={file.id}
+                title={file.title}
+                listType="file"
+                id={customFileId}
+                iconId={file.iconId}
+              />
+            );
+          })}
+      </AccordionContent>
     </AccordionItem>
   );
 };
