@@ -8,6 +8,7 @@ import { Folder } from "@/types/supabase.types";
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { PlusIcon } from "lucide-react";
@@ -103,7 +104,8 @@ const FoldersList: React.FC<FoldersListProps> = ({
     <>
       <div className="flex sticky z-20 top-0 w-full h-10 group/title justify-between items-center text-muted-foreground">
         <div className="text-muted-foreground font-medium text-sm">Folders</div>
-        <Tooltip>
+
+        <Tooltip delayDuration={300}>
           <TooltipTrigger>
             <PlusIcon
               className="size-4 cursor-pointer"

@@ -15,7 +15,26 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { PlugIcon, Trash } from "lucide-react";
+import {
+  ExternalLink,
+  LinkIcon,
+  Pencil,
+  PlusIcon,
+  Star,
+  Trash,
+  TrashIcon,
+} from "lucide-react";
+import { DotsHorizontalIcon, Pencil2Icon } from "@radix-ui/react-icons";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 interface FolderDropdownProps {
   id: string;
   title: string;
@@ -38,6 +57,7 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
   const { state: appState, dispatch, workspaceId, folderId } = useAppState();
 
   const [isEditing, setIsEditing] = React.useState<boolean>(false);
+  const [isDropdownOpen, setIsDropdownOpen] = React.useState<boolean>(false);
   const isFolder = React.useMemo(() => listType === "folder", [listType]);
 
   const folderTitle: string | undefined = React.useMemo(() => {
@@ -60,14 +80,34 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
 
   if (!workspaceId) return null;
 
-  const handleNavigateToType = (accordionId: string, type: typeof listType) => {
-    if (type === "folder") {
-      router.push(`/dashboard/${workspaceId}/${accordionId}`);
+  const handleNavigateToType = () => {
+    if (listType === "folder") {
+      router.push(`/dashboard/${workspaceId}/${id}`);
     }
 
-    if (type === "file") {
-      router.push(`/dashboard/${workspaceId}/${folderId}/${accordionId}`);
+    if (listType === "file") {
+      router.push(`/dashboard/${workspaceId}/${folderId}/${id}`);
     }
+  };
+
+  const handleControlItemClick = (
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>
+  ) => {
+    if (event.altKey) {
+      if (listType === "folder") {
+        window.open(`${window.location.origin}/dashboard/${workspaceId}/${id}`);
+      }
+
+      if (listType === "file") {
+        window.open(
+          `${window.location.origin}/dashboard/${workspaceId}/${folderId}/${id}`
+        );
+      }
+
+      return undefined;
+    }
+
+    handleNavigateToType();
   };
 
   const handleEmojiHandler = async (selectedEmoji: string) => {
@@ -102,7 +142,7 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
       dispatch({
         type: "UPDATE_FOLDER",
         payload: {
-          folder: { title },
+          folder: { title: event.target.value },
           folderId: fId[0],
           workspaceId,
         },
@@ -119,7 +159,11 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
     }
   };
 
-  const handleDoubleClickInput = () => {
+  const handleDoubleClickInput = (
+    event: React.MouseEvent<HTMLInputElement>
+  ) => {
+    event.stopPropagation();
+    event.currentTarget.select();
     setIsEditing(true);
   };
 
@@ -145,70 +189,150 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
       value={id}
       onClick={(event) => {
         event.stopPropagation();
-        handleNavigateToType(id, listType);
+        handleControlItemClick(event);
       }}
       className={cn("relative", {
         "border-none text-md": isFolder,
         "border-none ml-6 text-[16px] py-1": !isFolder,
       })}
     >
-      <AccordionTrigger
-        id={listType}
-        className="p-2 text-muted-foreground text-sm"
-        disabled={listType === "file"}
-        
-      >
-        <div
-          className={cn(
-            "dark:text-white whitespace-nowrap flex justify-between items-center w-full relative",
-            {
-              "group/folder": isFolder,
-              "group/file": !isFolder,
-            }
-          )}
+      <DropdownMenu onOpenChange={(value) => setIsDropdownOpen(value)}>
+        <AccordionTrigger
+          id={listType}
+          className="p-2 text-muted-foreground text-sm w-full"
+          disabled={listType === "file"}
         >
-          <div className="flex gap-2 items-center justify-center overflow-hidden">
-            <div className="relative">
-              <EmojiPicker getValue={handleEmojiHandler}>{iconId}</EmojiPicker>
+          <div
+            className={cn(
+              "whitespace-nowrap flex justify-between items-center w-full relative",
+              {
+                "group/folder": isFolder,
+                "group/file": !isFolder,
+              }
+            )}
+          >
+            <div className="flex items-center justify-center overflow-hidden">
+              <div className="relative">
+                <EmojiPicker getValue={handleEmojiHandler}>
+                  {iconId}
+                </EmojiPicker>
+              </div>
+              <input
+                type="text"
+                id={`${id}-${listType}-title`}
+                value={listType === "folder" ? folderTitle : fileTitle}
+                className={cn(
+                  "outline-none flex overflow-ellipsis font-medium text-sm max-w-[140px] line-clamp-1 bg-transparent cursor-pointer rounded-md px-1",
+                  {
+                    "bg-muted cursor-text focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring":
+                      isEditing,
+                  }
+                )}
+                readOnly={!isEditing}
+                onDoubleClick={handleDoubleClickInput}
+                onBlur={handleBlurInput}
+                onChange={
+                  listType === "folder"
+                    ? handleFolderTitleChange
+                    : handleFileTitleChange
+                }
+              />
             </div>
-            <input
-              type="text"
-              value={listType === "folder" ? folderTitle : fileTitle}
+
+            <div
               className={cn(
-                "outline-none overflow-hidden font-medium text-sm w-[140px] bg-transparent cursor-pointer",
+                "h-full text-muted-foreground flex rounded-sm opacity-0 transition-opacity items-center justify-center gap-1",
                 {
-                  "bg-muted cursor-text": isEditing,
+                  "group-hover/file:opacity-100": listType === "file",
+                  "group-hover/folder:opacity-100": listType === "folder",
+                  "opacity-100": isDropdownOpen,
                 }
               )}
-              readOnly={!isEditing}
-              onDoubleClick={handleDoubleClickInput}
-              onBlur={handleBlurInput}
-              onChange={
-                listType === "folder"
-                  ? handleFolderTitleChange
-                  : handleFileTitleChange
-              }
-            />
-          </div>
-
-          <div className="h-full hidden group-hover/file:block rounded-md absolute right-0 items-center gap-2 justify-center">
-            <Tooltip>
-              <TooltipTrigger>
-                <Trash className="size-4" />
-              </TooltipTrigger>
-              <TooltipContent>Delete folder</TooltipContent>
-            </Tooltip>
-            {listType === "folder" && !isEditing && (
+            >
               <Tooltip>
-                <TooltipTrigger>
-                  <PlugIcon className="size-4" />
+                <TooltipTrigger asChild>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-5 w-5">
+                      <DotsHorizontalIcon className="size-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
                 </TooltipTrigger>
-                <TooltipContent>Add new file</TooltipContent>
+                <TooltipContent>Delete, duplicate and more...</TooltipContent>
               </Tooltip>
-            )}
+              {listType === "folder" && !isEditing && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-5 w-5">
+                      <PlusIcon className="size-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Add a new file inside</TooltipContent>
+                </Tooltip>
+              )}
+            </div>
           </div>
-        </div>
-      </AccordionTrigger>
+        </AccordionTrigger>
+        <DropdownMenuContent
+          align="start"
+          className="min-w-[260px] font-medium"
+          onCloseAutoFocus={(e) => e.preventDefault()}
+        >
+          <DropdownMenuItem className="flex items-center gap-2">
+            <Star className="size-4" />
+            Add to favorites
+          </DropdownMenuItem>
+          <DropdownMenuSeparator className="bg-muted-foreground/20" />
+          <DropdownMenuItem
+            className="flex items-center gap-2"
+            onClick={() => {
+              if (listType === "folder") {
+                navigator.clipboard.writeText(
+                  `${window.location.origin}/dashboard/${workspaceId}/${id}`
+                );
+              }
+
+              if (listType === "file") {
+                navigator.clipboard.writeText(
+                  `${window.location.origin}/dashboard/${workspaceId}/${folderId}/${id}`
+                );
+              }
+
+              toast.success("Link copied to clipboard!");
+            }}
+          >
+            <LinkIcon className="size-4" />
+            Copy link
+            <DropdownMenuShortcut>Ctrl + L</DropdownMenuShortcut>
+          </DropdownMenuItem>
+          <DropdownMenuItem className="flex items-center gap-2">
+            <TrashIcon className="size-4" />
+            Delete
+            <DropdownMenuShortcut>Ctrl + ⌫</DropdownMenuShortcut>
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator className="bg-muted-foreground/20" />
+          <DropdownMenuItem
+            className="flex items-center gap-2"
+            onClick={() => {
+              if (listType === "folder") {
+                window.open(
+                  `${window.location.origin}/dashboard/${workspaceId}/${id}`
+                );
+              }
+
+              if (listType === "file") {
+                window.open(
+                  `${window.location.origin}/dashboard/${workspaceId}/${folderId}/${id}`
+                );
+              }
+            }}
+          >
+            <ExternalLink className="size-4" />
+            Open in new tab
+            <DropdownMenuShortcut>Alt + Click</DropdownMenuShortcut>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </AccordionItem>
   );
 };

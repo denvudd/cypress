@@ -32,6 +32,7 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({ children, getValue }) => {
             onEmojiSelect={(emoji: any) => handleSelectEmoji(emoji.native)}
             previewPosition="none"
             set="native"
+            navPosition="bottom"
             emojiButtonRadius='6px'
             emojiButtonColors={[
              'rgba(155,223,88,.7)',
