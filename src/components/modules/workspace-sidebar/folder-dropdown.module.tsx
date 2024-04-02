@@ -67,7 +67,7 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
   const currentFolder = React.useMemo(() => {
     return currentWorkspace?.folders.find((folder) => folder.id === id);
   }, [currentWorkspace, id]);
-  
+
   const currentFiles = React.useMemo(() => {
     return currentFolder?.files.filter((file) => !file.inTrash);
   }, [currentFolder]);
@@ -77,18 +77,19 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
     const folder = workspace?.folders.find((f) => f.id === id);
 
     return folder?.title ?? title;
-  }, [appState, workspaceId, id, title]);
+  }, [appState, workspaceId, id, title]);  
 
   const fileTitle: string | undefined = React.useMemo(() => {
-    if (listType !== "file") return;
+    if (listType !== "file") return undefined;
 
     const [folderId, fileId] = id.split("folder");
-    const workspace = appState.workspaces.find((ws) => ws.id === workspaceId);
-    const folder = workspace?.folders.find((f) => f.id === folderId);
+    const folder = currentWorkspace?.folders.find((f) => f.id === folderId);
     const file = folder?.files.find((f) => f.id === fileId);
 
     return file?.title ?? title;
-  }, [appState, listType, workspaceId, id, title]);
+  }, [appState, listType, workspaceId, currentWorkspace, id, title]);
+
+  console.log("fileTitle", fileTitle);
 
   if (!workspaceId) return null;
 
@@ -145,12 +146,13 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
 
   const handleAddNewFile = async () => {
     if (!workspaceId) return;
+
     const newFile: File = {
       folderId: id,
       data: null,
       createdAt: new Date().toISOString(),
       inTrash: null,
-      title: "Untitled",
+      title: "Untitled File",
       iconId: "📄",
       id: uuidv4(),
       workspaceId,
@@ -249,7 +251,7 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
         event.stopPropagation();
         handleControlItemClick(event);
       }}
-      className={cn("relative my-2 border-b-0 border-white", {
+      className={cn("relative my-1 border-b-0 border-white", {
         "border-none text-md": isFolder,
         "ml-6 pl-2 text-[16px] border-solid border-l border-l-muted-foreground/30":
           !isFolder,
@@ -279,7 +281,7 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
               <input
                 type="text"
                 id={`${id}-${listType}-title`}
-                value={listType === "folder" ? folderTitle : fileTitle}
+                value={isFolder ? folderTitle : fileTitle}
                 className={cn(
                   "outline-none flex overflow-ellipsis font-medium text-sm max-w-[140px] line-clamp-1 bg-transparent cursor-pointer rounded-md px-1",
                   {
@@ -291,9 +293,7 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
                 onDoubleClick={handleDoubleClickInput}
                 onBlur={handleBlurInput}
                 onChange={
-                  listType === "folder"
-                    ? handleFolderTitleChange
-                    : handleFileTitleChange
+                  isFolder ? handleFolderTitleChange : handleFileTitleChange
                 }
               />
             </div>
@@ -302,8 +302,8 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
               className={cn(
                 "h-full text-muted-foreground flex rounded-sm opacity-0 transition-opacity items-center justify-center gap-1",
                 {
-                  "group-hover/file:opacity-100": listType === "file",
-                  "group-hover/folder:opacity-100": listType === "folder",
+                  "group-hover/file:opacity-100": !isFolder,
+                  "group-hover/folder:opacity-100": isFolder,
                   "opacity-100": isDropdownOpen,
                 }
               )}
@@ -316,9 +316,9 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
                     </Button>
                   </DropdownMenuTrigger>
                 </TooltipTrigger>
-                <TooltipContent>Delete, duplicate and more...</TooltipContent>
+                <TooltipContent>Delete, copy and more...</TooltipContent>
               </Tooltip>
-              {listType === "folder" && !isEditing && (
+              {isFolder && !isEditing && (
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button

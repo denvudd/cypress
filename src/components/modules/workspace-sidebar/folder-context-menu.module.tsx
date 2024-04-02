@@ -37,18 +37,21 @@ const FolderContextMenu: React.FC<FolderContextMenuProps> = ({
       const isCopyLink = event.ctrlKey && event.key === "l";
       const isMoveToTrash = event.ctrlKey && event.key === "Backspace";
 
-      event.preventDefault();
-      event.stopPropagation();
-
       if (isCopyLink) {
+        event.preventDefault();
+        event.stopPropagation();
+
         handleCopyLink();
 
         return undefined;
       }
 
       if (isMoveToTrash) {
-        console.log("move to trash");
+        event.preventDefault();
+        event.stopPropagation();
+
         await handleMoveToTrash();
+        
         return undefined;
       }
     };
