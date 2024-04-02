@@ -77,7 +77,7 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
     const folder = workspace?.folders.find((f) => f.id === id);
 
     return folder?.title ?? title;
-  }, [appState, workspaceId, id, title]);  
+  }, [appState, workspaceId, id, title]);
 
   const fileTitle: string | undefined = React.useMemo(() => {
     if (listType !== "file") return undefined;
@@ -247,10 +247,6 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
   return (
     <AccordionItem
       value={id}
-      onClick={(event) => {
-        event.stopPropagation();
-        handleControlItemClick(event);
-      }}
       className={cn("relative my-1 border-b-0 border-white", {
         "border-none text-md": isFolder,
         "ml-6 pl-2 text-[16px] border-solid border-l border-l-muted-foreground/30":
@@ -272,7 +268,13 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
               }
             )}
           >
-            <div className="flex items-center justify-center overflow-hidden">
+            <div
+              className="flex items-center justify-center overflow-hidden"
+              onClick={(event) => {
+                event.stopPropagation();
+                handleControlItemClick(event);
+              }}
+            >
               <div className="relative">
                 <EmojiPicker getValue={handleEmojiHandler}>
                   {iconId}

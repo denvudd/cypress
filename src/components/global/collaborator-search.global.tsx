@@ -95,7 +95,7 @@ const CollaboratorSearch: React.FC<CollaboratorSearchProps> = ({
 
               return (
                 <div
-                  className="p-4 border animate-in fade-in-30 bg-card/30 blured rounded-md flex-shrink-0 overflow-y-hidden flex justify-between items-center"
+                  className="p-4 border animate-in fade-in-30 bg-card/30 dark:blured rounded-md flex-shrink-0 overflow-y-hidden flex justify-between items-center"
                   key={user.id}
                 >
                   <div className="flex gap-2 items-center">

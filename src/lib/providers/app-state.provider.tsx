@@ -292,11 +292,14 @@ const AppStateProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
         payload: { workspaceId, files: data, folderId },
       });
     };
+
     fetchFiles();
   }, [folderId, workspaceId]);
 
   React.useEffect(() => {
-    console.log("App State Changed", state);
+    if (process.env.NODE_ENV === "development") {
+      console.log("App State Changed", state);
+    }
   }, [state]);
 
   return (

@@ -21,6 +21,7 @@ import WorkspaceNavigation from "./workspace-navigation.module";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { cn } from "@/lib/utils";
+import UserPanel from "./user-panel.module";
 
 interface WorkspaceSidebarProps {
   workspaceId: string;
@@ -100,6 +101,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = async ({
           />
         </ScrollArea>
       </div>
+      <UserPanel subscription={subscription} />
     </aside>
   );
 };

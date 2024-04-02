@@ -74,6 +74,13 @@
   backdrop-filter: blur(15px) saturate(190%) contrast(65%) brightness(75%);
 }
 
+.blured-light {
+  /* Perfomance hack */
+  will-change: transform;
+  /* To make it works set opacity for background */
+  backdrop-filter: blur(15px) saturate(190%) contrast(65%) brightness(110%);
+}
+
 body.layout-scrollbar-obtrusive * {
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-color) transparent;

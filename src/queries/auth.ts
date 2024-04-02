@@ -48,6 +48,16 @@ export async function signUpUser({ email, password }: SignUpValidatorSchema) {
 
   return response;
 }
+
+/** Get authenticated user */
+export async function getAuthUser(userId: string) {
+  const response = await db.query.users.findFirst({
+    where: (u, { eq }) => eq(u.id, userId),
+  });
+
+  return response
+}
+
 /** Search users from their email */
 export async function searchUser(email: string) {
   if (!email) return [];

@@ -127,7 +127,7 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
   };
 
   return (
-    <Card className="w-[800px] h-screen sm:h-auto blured bg-card/80">
+    <Card className="w-[800px] h-screen sm:h-auto blured-light dark:blured bg-card/80">
       <CardHeader>
         <CardTitle>Create a workspace</CardTitle>
         <CardDescription>
