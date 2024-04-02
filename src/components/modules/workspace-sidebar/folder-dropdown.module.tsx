@@ -5,19 +5,13 @@ import { useRouter } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import {
-  ExternalLink,
-  LinkIcon,
-  PlusIcon,
-  Star,
-  StarOff,
-  TrashIcon,
-} from "lucide-react";
+import { PlusIcon } from "lucide-react";
 
 import { updateFolder } from "@/queries/folder";
 import { createFile, updateFile } from "@/queries/file";
 
 import EmojiPicker from "@/components/global/emoji-picker.global";
+import FolderContextMenu from "./folder-context-menu.module";
 import {
   AccordionContent,
   AccordionItem,
@@ -31,10 +25,6 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -42,7 +32,6 @@ import { useSupabaseUser } from "@/hooks/user-supabase-user";
 import { useAppState } from "@/hooks/use-app-state";
 import { cn } from "@/lib/utils";
 import { File } from "@/types/supabase.types";
-
 interface FolderDropdownProps {
   id: string;
   title: string;
@@ -66,7 +55,22 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
 
   const [isEditing, setIsEditing] = React.useState<boolean>(false);
   const [isDropdownOpen, setIsDropdownOpen] = React.useState<boolean>(false);
+
   const isFolder = React.useMemo(() => listType === "folder", [listType]);
+
+  const currentWorkspace = React.useMemo(() => {
+    return appState.workspaces.find(
+      (workspace) => workspace.id === workspaceId
+    );
+  }, [workspaceId, appState.workspaces]);
+
+  const currentFolder = React.useMemo(() => {
+    return currentWorkspace?.folders.find((folder) => folder.id === id);
+  }, [currentWorkspace, id]);
+  
+  const currentFiles = React.useMemo(() => {
+    return currentFolder?.files.filter((file) => !file.inTrash);
+  }, [currentFolder]);
 
   const folderTitle: string | undefined = React.useMemo(() => {
     const workspace = appState.workspaces.find((ws) => ws.id === workspaceId);
@@ -85,46 +89,6 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
 
     return file?.title ?? title;
   }, [appState, listType, workspaceId, id, title]);
-
-  React.useEffect(() => {
-    const handleKeyDown = async (event: KeyboardEvent) => {
-      const isCopyLink = event.ctrlKey && event.key === "l";
-      const isMoveToTrash = event.ctrlKey && event.key === "Backspace";
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      if (isCopyLink) {
-        if (listType === "folder") {
-          navigator.clipboard.writeText(
-            `${window.location.origin}/dashboard/${workspaceId}/${id}`
-          );
-        }
-
-        if (listType === "file") {
-          navigator.clipboard.writeText(
-            `${window.location.origin}/dashboard/${workspaceId}/${folderId}/${id}`
-          );
-        }
-
-        toast.success("Link copied to clipboard!");
-
-        return undefined;
-      }
-
-      if (isMoveToTrash) {
-        console.log("move to trash");
-        await handleMoveToTrash();
-        return undefined;
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [folderId, id, workspaceId]);
 
   if (!workspaceId) return null;
 
@@ -206,121 +170,6 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
     }
 
     toast.success("File created successfully!");
-  };
-
-  const handleMoveToFavorite = async () => {
-    if (!user?.email || !workspaceId) return undefined;
-
-    const pathId = id.split("folder");
-
-    if (listType === "folder") {
-      dispatch({
-        type: "UPDATE_FOLDER",
-        payload: {
-          folder: { inFavorite: `Moved by ${user?.email}` },
-          folderId: pathId[0],
-          workspaceId,
-        },
-      });
-
-      const { data, error } = await updateFolder(
-        { inFavorite: `Moved by ${user?.email}` },
-        pathId[0]
-      );
-
-      if (error) {
-        toast.error("Error! Could not move the folder to favorite", {
-          description: "Please try again later",
-        });
-      }
-
-      toast.success("Folder moved to favorite");
-    }
-  };
-
-  const handleRemoveFromFavorite = async () => {
-    if (!user?.email || !workspaceId) return undefined;
-
-    const pathId = id.split("folder");
-
-    if (listType === "folder") {
-      dispatch({
-        type: "UPDATE_FOLDER",
-        payload: {
-          folder: { inFavorite: "" },
-          folderId: pathId[0],
-          workspaceId,
-        },
-      });
-
-      const { data, error } = await updateFolder(
-        { inFavorite: "" },
-        pathId[0]
-      );
-
-      if (error) {
-        toast.error("Error! Could not move the folder to favorite", {
-          description: "Please try again later",
-        });
-      }
-
-      toast.success("Folder moved to favorite");
-    }
-  };
-
-  const handleMoveToTrash = async () => {
-    if (!user?.email || !workspaceId) return undefined;
-
-    const pathId = id.split("folder");
-
-    if (listType === "folder") {
-      dispatch({
-        type: "UPDATE_FOLDER",
-        payload: {
-          folder: { inTrash: `Deleted by ${user?.email}` },
-          folderId: pathId[0],
-          workspaceId,
-        },
-      });
-
-      const { data, error } = await updateFolder(
-        { inTrash: `Deleted by ${user?.email}` },
-        pathId[0]
-      );
-
-      if (error) {
-        toast.error("Error! Could not move the folder to trash", {
-          description: "Please try again later",
-        });
-      }
-
-      toast.success("Folder moved to trash");
-    }
-
-    if (listType === "file") {
-      dispatch({
-        type: "UPDATE_FILE",
-        payload: {
-          file: { inTrash: `Deleted by ${user?.email}` },
-          folderId: pathId[0],
-          workspaceId,
-          fileId: pathId[1],
-        },
-      });
-
-      const { data, error } = await updateFile(
-        { inTrash: `Deleted by ${user?.email}` },
-        pathId[1]
-      );
-
-      if (error) {
-        toast.error("Error! Could not move the file to trash", {
-          description: "Please try again later",
-        });
-      }
-
-      toast.success("File moved to trash");
-    }
   };
 
   const handleFolderTitleChange = (
@@ -487,106 +336,28 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
             </div>
           </div>
         </AccordionTrigger>
-        <DropdownMenuContent
-          align="start"
-          className="min-w-[260px] font-medium"
-          onCloseAutoFocus={(e) => e.preventDefault()}
-        >
-          {listType === "folder" && !inFavorite ? (
-            <>
-              <DropdownMenuItem
-                className="flex items-center gap-2"
-                onClick={handleMoveToFavorite}
-              >
-                <Star className="size-4" />
-                Add to Favorites
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-muted-foreground/20" />
-            </>
-          ) : (
-            <>
-              <DropdownMenuItem
-                className="flex items-center gap-2"
-                onClick={handleRemoveFromFavorite}
-              >
-                <StarOff className="size-4" />
-                Remove from Favorites
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-muted-foreground/20" />
-            </>
-          )}
-          <DropdownMenuItem
-            className="flex items-center gap-2"
-            onClick={() => {
-              if (listType === "folder") {
-                navigator.clipboard.writeText(
-                  `${window.location.origin}/dashboard/${workspaceId}/${id}`
-                );
-              }
-
-              if (listType === "file") {
-                navigator.clipboard.writeText(
-                  `${window.location.origin}/dashboard/${workspaceId}/${folderId}/${id}`
-                );
-              }
-
-              toast.success("Link copied to clipboard!");
-            }}
-          >
-            <LinkIcon className="size-4" />
-            Copy link
-            <DropdownMenuShortcut>Ctrl + L</DropdownMenuShortcut>
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="flex items-center gap-2"
-            onClick={handleMoveToTrash}
-          >
-            <TrashIcon className="size-4" />
-            Delete
-            <DropdownMenuShortcut>Ctrl + ⌫</DropdownMenuShortcut>
-          </DropdownMenuItem>
-
-          <DropdownMenuSeparator className="bg-muted-foreground/20" />
-          <DropdownMenuItem
-            className="flex items-center gap-2"
-            onClick={() => {
-              if (listType === "folder") {
-                window.open(
-                  `${window.location.origin}/dashboard/${workspaceId}/${id}`
-                );
-              }
-
-              if (listType === "file") {
-                window.open(
-                  `${window.location.origin}/dashboard/${workspaceId}/${folderId}/${id}`
-                );
-              }
-            }}
-          >
-            <ExternalLink className="size-4" />
-            Open in new tab
-            <DropdownMenuShortcut>Alt + Click</DropdownMenuShortcut>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
+        <FolderContextMenu
+          accordionId={id}
+          listType={listType}
+          userEmail={user?.email}
+          workspaceId={workspaceId}
+          inFavorite={inFavorite}
+        />
       </DropdownMenu>
       <AccordionContent className="pb-0">
-        {appState.workspaces
-          .find((workspace) => workspace.id === workspaceId)
-          ?.folders.find((folder) => folder.id === id)
-          ?.files.filter((file) => !file.inTrash)
-          .map((file) => {
-            const customFileId = `${id}folder${file.id}`;
+        {currentFiles?.map((file) => {
+          const customFileId = `${id}folder${file.id}`;
 
-            return (
-              <FolderDropdown
-                key={file.id}
-                title={file.title}
-                listType="file"
-                id={customFileId}
-                iconId={file.iconId}
-              />
-            );
-          })}
+          return (
+            <FolderDropdown
+              key={file.id}
+              title={file.title}
+              listType="file"
+              id={customFileId}
+              iconId={file.iconId}
+            />
+          );
+        })}
       </AccordionContent>
     </AccordionItem>
   );
