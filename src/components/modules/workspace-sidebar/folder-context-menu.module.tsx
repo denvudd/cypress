@@ -34,8 +34,8 @@ const FolderContextMenu: React.FC<FolderContextMenuProps> = ({
 
   React.useEffect(() => {
     const handleKeyDown = async (event: KeyboardEvent) => {
-      const isCopyLink = event.ctrlKey && event.key === "l";
-      const isMoveToTrash = event.ctrlKey && event.key === "Backspace";
+      const isCopyLink = event.ctrlKey && event.shiftKey && event.key === "l";
+      const isMoveToTrash = event.ctrlKey && event.shiftKey && event.key === "Backspace";
 
       if (isCopyLink) {
         event.preventDefault();
@@ -230,7 +230,7 @@ const FolderContextMenu: React.FC<FolderContextMenuProps> = ({
       >
         <LinkIcon className="size-4" />
         Copy link
-        <DropdownMenuShortcut>Ctrl + L</DropdownMenuShortcut>
+        <DropdownMenuShortcut>Ctrl + Shift + L</DropdownMenuShortcut>
       </DropdownMenuItem>
       <DropdownMenuItem
         className="flex items-center gap-2"
@@ -238,7 +238,7 @@ const FolderContextMenu: React.FC<FolderContextMenuProps> = ({
       >
         <TrashIcon className="size-4" />
         Delete
-        <DropdownMenuShortcut>Ctrl + ⌫</DropdownMenuShortcut>
+        <DropdownMenuShortcut>Ctrl + Shift + ⌫</DropdownMenuShortcut>
       </DropdownMenuItem>
 
       <DropdownMenuSeparator className="bg-muted-foreground/20" />

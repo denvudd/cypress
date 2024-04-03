@@ -99,3 +99,59 @@ body.layout-scrollbar-obtrusive * {
     transform: translateX(-100%);
   }
 }
+
+.ce-popover-item:hover {
+  @apply bg-muted/40 transition-all !important;
+}
+
+.ce-popover--opened {
+  @apply bg-card outline-none border-border dark:text-muted;
+}
+
+.ce-popover-item__icon {
+  @apply dark:bg-background text-white font-medium shadow-none dark:border-[1px] !important;
+}
+
+.ce-popover-item__title {
+  @apply text-muted-foreground font-normal;
+}
+
+.cdx-search-field {
+  @apply bg-background;
+}
+
+.ce-toolbar__content,
+.ce-block__content {
+  max-width: 750px;
+}
+
+.editorFocus {
+  @apply border-none outline-none;
+}
+
+.dotPattern {
+  background-image: radial-gradient(rgb(25, 25, 25) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+
+.ql-toolbar::-webkit-scrollbar {
+  display: none;
+}
+
+.ql-toolbar {
+  @apply flex flex-wrap items-center justify-center dark:bg-background/70 bg-white/40 backdrop-blur-md z-40 sticky top-0 !border-none left-0 right-0;
+}
+
+.ql-formats {
+  @apply flex flex-shrink-0;
+}
+
+.ql-container {
+  @apply !border-none;
+}
+
+.ql-editor > p,
+ol,
+ul {
+  @apply dark:text-washed-purple-700;
+}

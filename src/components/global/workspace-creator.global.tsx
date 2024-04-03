@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { Lock, Plus, Trash, Users2 } from "lucide-react";
+import { Plus, Trash } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
 
@@ -10,23 +10,15 @@ import { createWorkspace } from "@/queries/workspace";
 import { addCollaborators } from "@/queries/collaborator";
 
 import CollaboratorSearch from "./collaborator-search.global";
+import PermissionSelect from "./permission-select.global";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 import { useSupabaseUser } from "@/hooks/user-supabase-user";
-import { User, Workspace } from "@/types/supabase.types";
+import { Subscription, User, Workspace } from "@/types/supabase.types";
 import { PermissionsKey } from "@/types/global.type";
-import PermissionSelect from "./permission-select.global";
 
 interface WorkspaceCreatorProps {}
 
@@ -96,6 +88,7 @@ const WorkspaceCreator: React.FC<WorkspaceCreatorProps> = ({}) => {
             name="name"
             value={title}
             placeholder="Workspace name"
+            disabled={isWorkspaceLoading}
             onChange={(e) => setTitle(e.target.value)}
           />
         </div>

@@ -3,38 +3,39 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { Plus, Trash } from "lucide-react";
+import { toast } from "sonner";
+import { v4 as uuidv4 } from "uuid";
 
+import { deleteWorkspace, updateWorkspace } from "@/queries/workspace";
+import { addCollaborators, removeCollaborator } from "@/queries/collaborator";
+
+import PermissionSelect from "@/components/global/permission-select.global";
+import CollaboratorSearch from "@/components/global/collaborator-search.global";
 import CypressSettingsIcon from "@/components/ui/icons/settings-icon";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 import { useSupabaseUser } from "@/hooks/user-supabase-user";
 import { useAppState } from "@/hooks/use-app-state";
-
 import { PermissionsKey } from "@/types/global.type";
-import { User, Workspace } from "@/types/supabase.types";
-import { Plus, Trash } from "lucide-react";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { deleteWorkspace, updateWorkspace } from "@/queries/workspace";
-import { v4 as uuidv4 } from "uuid";
-import PermissionSelect from "@/components/global/permission-select.global";
-import CollaboratorSearch from "@/components/global/collaborator-search.global";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { addCollaborators, removeCollaborator } from "@/queries/collaborator";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { toast } from "sonner";
+import { Subscription, User, Workspace } from "@/types/supabase.types";
 
-interface SettingsProps {}
+interface SettingsProps {
+  subscription: Subscription | null;
+}
 
-const Settings: React.FC<SettingsProps> = ({}) => {
+const Settings: React.FC<SettingsProps> = ({ subscription }) => {
   const router = useRouter();
   const supabaseClient = createClientComponentClient();
   const { user } = useSupabaseUser();
@@ -187,7 +188,7 @@ const Settings: React.FC<SettingsProps> = ({}) => {
               accept="image/*"
               placeholder="Workspace logo"
               onChange={handleChangeWorkspaceLogo}
-              disabled={isLogoUploading}
+              disabled={isLogoUploading || subscription?.status !== "active"}
             />
           </div>
 

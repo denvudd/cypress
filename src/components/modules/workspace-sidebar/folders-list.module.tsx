@@ -85,6 +85,7 @@ const FoldersList: React.FC<FoldersListProps> = ({
       inFavorite: null,
       title: `Untitled Folder (${folders.length + 1})`,
       workspaceId,
+      bannerUrl: "",
     };
 
     dispatch({

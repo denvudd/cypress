@@ -2,10 +2,9 @@
 
 import * as React from "react";
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
-import { ChevronDownIcon } from "@radix-ui/react-icons";
+import { ChevronRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { ChevronRight } from "lucide-react";
 
 const Accordion = AccordionPrimitive.Root;
 
@@ -21,10 +20,15 @@ const AccordionItem = React.forwardRef<
 ));
 AccordionItem.displayName = "AccordionItem";
 
+export interface AccordionTriggerProps
+  extends React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger> {
+  withArrow?: boolean;
+}
+
 const AccordionTrigger = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>
->(({ className, children, disabled, ...props }, ref) => (
+  AccordionTriggerProps
+>(({ className, children, disabled, withArrow = true, ...props }, ref) => (
   <AccordionPrimitive.Header className="flex items-center">
     <div className="flex items-center gap-1 w-full">
       <AccordionPrimitive.Trigger
@@ -35,7 +39,7 @@ const AccordionTrigger = React.forwardRef<
         )}
         {...props}
       >
-        {!disabled && (
+        {!disabled && withArrow && (
           <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200" />
         )}
       </AccordionPrimitive.Trigger>

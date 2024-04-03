@@ -89,31 +89,38 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
     return file?.title ?? title;
   }, [appState, listType, workspaceId, currentWorkspace, id, title]);
 
-  console.log("fileTitle", fileTitle);
-
   if (!workspaceId) return null;
 
   const handleNavigateToType = () => {
+    const fileId = id.split("folder")[1];
+    console.log(listType);
+
     if (listType === "folder") {
       router.push(`/dashboard/${workspaceId}/${id}`);
     }
 
     if (listType === "file") {
-      router.push(`/dashboard/${workspaceId}/${folderId}/${id}`);
+      console.log(`/dashboard/${workspaceId}/${folderId}/${fileId}`);
+      router.push(`/dashboard/${workspaceId}/${folderId}/${fileId}`);
     }
   };
 
   const handleControlItemClick = (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>
   ) => {
+    event.stopPropagation();
+
     if (event.altKey) {
+      event.preventDefault();
+      const fileId = id.split("folder")[1];
+
       if (listType === "folder") {
         window.open(`${window.location.origin}/dashboard/${workspaceId}/${id}`);
       }
 
       if (listType === "file") {
         window.open(
-          `${window.location.origin}/dashboard/${workspaceId}/${folderId}/${id}`
+          `${window.location.origin}/dashboard/${workspaceId}/${folderId}/${fileId}`
         );
       }
 
@@ -156,6 +163,7 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
       iconId: "📄",
       id: uuidv4(),
       workspaceId,
+      bannerUrl: "",
     };
 
     dispatch({
@@ -226,32 +234,39 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
     if (fId?.length === 1) {
       if (!folderTitle) return undefined;
 
-      await updateFolder({ title }, fId[0]);
-    }
-
-    if (fId.length === 2 && fId[1]) {
-      if (!fileTitle) return undefined;
-
-      const { data, error } = await updateFile({ title: fileTitle }, fId[1]);
+      const { data, error } = await updateFolder({ title }, fId[0]);
 
       if (error) {
         toast.error("Error! Could not update your file title", {
           description: "Please try again later",
         });
       }
+    }
 
-      toast.success("File title updated successfully!");
+    if (fId.length === 2 && fId[1]) {
+      if (!fileTitle) return undefined;
+
+      const { data, error } = await updateFile({ title }, fId[1]);
+
+      if (error) {
+        toast.error("Error! Could not update your file title", {
+          description: "Please try again later",
+        });
+      }
     }
   };
 
   return (
     <AccordionItem
       value={id}
-      className={cn("relative my-1 border-b-0 border-white", {
+      className={cn("relative my-1 border-b-0 border-white animate-in fade-in-0 zoom-in-95", {
         "border-none text-md": isFolder,
         "ml-6 pl-2 text-[16px] border-solid border-l border-l-muted-foreground/30":
           !isFolder,
       })}
+      onClick={(event) => {
+        handleControlItemClick(event);
+      }}
     >
       <DropdownMenu onOpenChange={(value) => setIsDropdownOpen(value)}>
         <AccordionTrigger
@@ -268,13 +283,7 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
               }
             )}
           >
-            <div
-              className="flex items-center justify-center overflow-hidden"
-              onClick={(event) => {
-                event.stopPropagation();
-                handleControlItemClick(event);
-              }}
-            >
+            <div className="flex items-center justify-center overflow-hidden">
               <div className="relative">
                 <EmojiPicker getValue={handleEmojiHandler}>
                   {iconId}

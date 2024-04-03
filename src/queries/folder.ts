@@ -36,6 +36,30 @@ export async function getFolders(workspaceId: string) {
   }
 }
 
+/** Get folder details by folder ID */
+export const getFolderDetails = async (folderId: string) => {
+  const isValid = validate(folderId);
+
+  if (!isValid) {
+    return {
+      data: [],
+      error: "Error",
+    };
+  }
+
+  try {
+    const response = (await db
+      .select()
+      .from(folders)
+      .where(eq(folders.id, folderId))
+      .limit(1)) as Folder[];
+
+    return { data: response, error: null };
+  } catch (error) {
+    return { data: [], error: `Error ${error}` };
+  }
+};
+
 /** Create folder */
 export async function createFolder(folder: Folder) {
   try {
@@ -65,4 +89,15 @@ export async function updateFolder(folder: Partial<Folder>, folderId: string) {
       error: `Error: ${error}`,
     };
   }
+}
+
+/** Delete folder by folder ID */
+export async function deleteFolder(folderId: string) {
+  if (!folderId)
+    return {
+      data: null,
+      error: "No folder ID provided",
+    };
+
+  await db.delete(folders).where(eq(folders.id, folderId));
 }

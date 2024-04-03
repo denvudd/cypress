@@ -28,6 +28,7 @@ export const files = pgTable("files", {
 	inTrash: text("in_trash"),
 	workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id, { onDelete: "cascade" } ),
 	folderId: uuid("folder_id").notNull().references(() => folders.id, { onDelete: "cascade" } ),
+	bannerUrl: text("banner_url"),
 });
 
 export const folders = pgTable("folders", {
@@ -39,6 +40,7 @@ export const folders = pgTable("folders", {
 	inTrash: text("in_trash"),
 	workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id, { onDelete: "cascade" } ),
 	inFavorite: text("in_favorite"),
+	bannerUrl: text("banner_url"),
 });
 
 export const workspaces = pgTable("workspaces", {
@@ -100,7 +102,6 @@ export const prices = pgTable("prices", {
 	trialPeriodDays: integer("trial_period_days"),
 	metadata: jsonb("metadata"),
 });
-
 
 export const subscriptions = pgTable("subscriptions", {
 	id: text("id").primaryKey().notNull(),

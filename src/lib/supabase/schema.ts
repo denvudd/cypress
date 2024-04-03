@@ -45,6 +45,7 @@ export const folders = pgTable('folders', {
   data: text('data'),
   inTrash: text('in_trash'),
   inFavorite: text("in_favorite"),
+  bannerUrl: text('banner_url'),
   workspaceId: uuid('workspace_id')
     .notNull()
     .references(() => workspaces.id, {
@@ -64,6 +65,7 @@ export const files = pgTable('files', {
   iconId: text('icon_id').notNull(),
   data: text('data'),
   inTrash: text('in_trash'),
+  bannerUrl: text('banner_url'),
   workspaceId: uuid('workspace_id')
     .notNull()
     .references(() => workspaces.id, {

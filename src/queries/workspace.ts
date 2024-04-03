@@ -6,6 +6,7 @@ import { users, workspaces } from "../../migrations/schema";
 import { notExists, and, eq } from "drizzle-orm";
 import { collaborators } from "@/lib/supabase/schema";
 import { revalidatePath } from "next/cache";
+import { validate } from "uuid";
 
 /** Get workspace by user id */
 export async function getWorkspaceByUserId(userId: string) {
@@ -14,6 +15,36 @@ export async function getWorkspaceByUserId(userId: string) {
   });
 
   return workspace;
+}
+
+/** Get workspace details by workspace ID */
+export async function getWorkspaceDetails(workspaceId: string) {
+  const isValid = validate(workspaceId);
+
+  if (!isValid) {
+    return {
+      data: [],
+      error: "Error invalid ID",
+    };
+  }
+
+  try {
+    const workspace = await db
+      .select()
+      .from(workspaces)
+      .where(eq(workspaces.id, workspaceId))
+      .limit(1);
+
+    return {
+      data: workspace as Workspace[],
+      error: null,
+    };
+  } catch (error) {
+    return {
+      data: [],
+      error: `Error ${error}`,
+    };
+  }
 }
 
 /** Creating workspace */

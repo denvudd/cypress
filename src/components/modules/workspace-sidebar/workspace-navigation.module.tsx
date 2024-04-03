@@ -5,14 +5,17 @@ import { twMerge } from "tailwind-merge";
 import CypressHomeIcon from "@/components/ui/icons/home-icon";
 import CypressTrashIcon from "@/components/ui/icons/trash-icon";
 import Settings from "../settings/settings.module";
+import { Subscription } from "@/types/supabase.types";
 
 interface WorkspaceNavigationProps {
   workspaceId: string;
+  subscription: Subscription | null;
   className?: string;
 }
 
 const WorkspaceNavigation: React.FC<WorkspaceNavigationProps> = ({
   workspaceId,
+  subscription,
   className,
 }) => {
   return (
@@ -28,7 +31,7 @@ const WorkspaceNavigation: React.FC<WorkspaceNavigationProps> = ({
           </Link>
         </li>
 
-        <Settings />
+        <Settings subscription={subscription} />
 
         <li>
           <Link

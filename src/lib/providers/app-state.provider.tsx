@@ -14,12 +14,20 @@ export type AppWorkspacesType = Workspace & {
   folders: AppFoldersType[];
 };
 
-interface AppState {
+export interface AppState {
   workspaces: AppWorkspacesType[];
 }
 
 export type Action =
   | { type: "DELETE_WORKSPACE"; payload: string }
+  | {
+      type: "DELETE_FILE";
+      payload: { workspaceId: string; folderId: string; fileId: string };
+    }
+  | {
+      type: "DELETE_FOLDER";
+      payload: { workspaceId: string; folderId: string };
+    }
   | {
       type: "SET_WORKSPACES";
       payload: { workspaces: AppWorkspacesType[] };
@@ -81,6 +89,44 @@ const appReducer = (
         workspaces: state.workspaces.filter(
           (workspace) => workspace.id !== action.payload
         ),
+      };
+    case "DELETE_FOLDER":
+      return {
+        ...state,
+        workspaces: state.workspaces.map((workspace) => {
+          if (workspace.id === action.payload.workspaceId) {
+            return {
+              ...workspace,
+              folders: workspace.folders.filter(
+                (folder) => folder.id !== action.payload.folderId
+              ),
+            };
+          }
+          return workspace;
+        }),
+      };
+    case "DELETE_FILE":
+      return {
+        ...state,
+        workspaces: state.workspaces.map((workspace) => {
+          if (workspace.id === action.payload.workspaceId) {
+            return {
+              ...workspace,
+              folder: workspace.folders.map((folder) => {
+                if (folder.id === action.payload.folderId) {
+                  return {
+                    ...folder,
+                    files: folder.files.filter(
+                      (file) => file.id !== action.payload.fileId
+                    ),
+                  };
+                }
+                return folder;
+              }),
+            };
+          }
+          return workspace;
+        }),
       };
     case "UPDATE_WORKSPACE":
       return {

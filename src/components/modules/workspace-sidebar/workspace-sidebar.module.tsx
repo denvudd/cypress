@@ -85,7 +85,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = async ({
             </button>
           }
           header="Create a workspace"
-          content={<WorkspaceCreator />}
+          content={<WorkspaceCreator/>}
           description="Workspace give you the power to collaborate with others. You 
         can change your workspace privacy settings after creating workspace too."
         />
@@ -93,7 +93,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = async ({
           foldersLength={folders?.length || 0}
           subscription={subscription}
         />
-        <WorkspaceNavigation workspaceId={workspaceId} />
+        <WorkspaceNavigation workspaceId={workspaceId} subscription={subscription}  />
         <div className="h-[450px] overflow-auto relative">
           <FoldersList
             defaultFolders={folders || []}
