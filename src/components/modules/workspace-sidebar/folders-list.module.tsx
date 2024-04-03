@@ -66,7 +66,9 @@ const FoldersList: React.FC<FoldersListProps> = ({
   }, [appState, workspaceId]);
 
   React.useEffect(() => {
-    setFavoriteFolders(folders?.filter((folder) => folder.inFavorite) || []);
+    setFavoriteFolders(
+      folders?.filter((folder) => folder.inFavorite && !folder.inTrash) || []
+    );
   }, [folders]);
 
   const handleAddFolder = async () => {

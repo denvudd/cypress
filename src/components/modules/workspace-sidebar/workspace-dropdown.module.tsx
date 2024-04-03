@@ -17,6 +17,7 @@ import {
 import { Workspace } from "@/types/supabase.types";
 import { CaretSortIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 interface WorkspaceDropdownProps {
   privateWorkspaces: Workspace[];
   sharedWorkspaces: Workspace[];
@@ -31,9 +32,13 @@ const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
   defaultValue,
 }) => {
   const { dispatch, state } = useAppState();
+  const supabaseClient = createClientComponentClient();
+
   const [selectedOption, setSelectedOption] = React.useState<
     Workspace | undefined
   >(defaultValue);
+  const [workspaceLogo, setWorkspaceLogo] =
+    React.useState<string>("/cypresslogo.svg");
 
   React.useEffect(() => {
     if (!state.workspaces.length) {
@@ -54,6 +59,25 @@ const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
     setSelectedOption(option);
   };
 
+  React.useEffect(() => {
+    if (selectedOption?.logo) {
+      const path = supabaseClient.storage
+        .from("workspace-logos")
+        .getPublicUrl(selectedOption.logo)?.data.publicUrl;
+
+      setWorkspaceLogo(path);
+    }
+  }, [selectedOption]);
+
+  React.useEffect(() => {
+    // to sync up the changes for selected workspace
+    const findSelectedWorkspace = state.workspaces.find(
+      (workspace) => workspace.id === defaultValue?.id
+    );
+
+    if (findSelectedWorkspace) setSelectedOption(findSelectedWorkspace);
+  }, [state, defaultValue]);
+
   return (
     <div className="relative inline-block text-left w-full">
       <DropdownMenu>
@@ -61,7 +85,7 @@ const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
           {selectedOption && (
             <div className="flex w-full justify-between items-center rounded-md hover:bg-accent transition-all flex-row p-2 text-sm font-medium gap-2 cursor-pointer my-2">
               <Image
-                src={selectedOption.logo || "/cypresslogo.svg"}
+                src={workspaceLogo || "/cypresslogo.svg"}
                 alt="Workspace Logo"
                 width={20}
                 height={20}

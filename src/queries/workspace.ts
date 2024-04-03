@@ -5,6 +5,7 @@ import { Workspace } from "@/types/supabase.types";
 import { users, workspaces } from "../../migrations/schema";
 import { notExists, and, eq } from "drizzle-orm";
 import { collaborators } from "@/lib/supabase/schema";
+import { revalidatePath } from "next/cache";
 
 /** Get workspace by user id */
 export async function getWorkspaceByUserId(userId: string) {
@@ -105,4 +106,43 @@ export async function getSharedWorkspaces(userId: string) {
     .where(eq(workspaces.workspaceOwner, userId));
 
   return sharedWorkspaces;
+}
+
+/** Deletes workspace by workspace ID */
+export async function deleteWorkspace(workspaceId: string) {
+  if (!workspaceId) return undefined;
+
+  await db.delete(workspaces).where(eq(workspaces.id, workspaceId));
+
+  return {
+    data: null,
+    error: null,
+  };
+}
+
+/** Update workspace */
+export async function updateWorkspace(
+  workspace: Partial<Workspace>,
+  workspaceId: string
+) {
+  if (!workspaceId) return undefined;
+
+  try {
+    await db
+      .update(workspaces)
+      .set(workspace)
+      .where(eq(workspaces.id, workspaceId));
+
+    revalidatePath(`/dashboard/${workspaceId}`);
+
+    return {
+      data: null,
+      error: null,
+    };
+  } catch (error) {
+    return {
+      data: null,
+      error: `Error ${error}`,
+    };
+  }
 }

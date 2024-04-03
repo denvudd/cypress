@@ -2,10 +2,9 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { useSupabaseUser } from "@/hooks/user-supabase-user";
-import { User, Workspace } from "@/types/supabase.types";
 import { Lock, Plus, Trash, Users2 } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
+import { toast } from "sonner";
 
 import { createWorkspace } from "@/queries/workspace";
 import { addCollaborators } from "@/queries/collaborator";
@@ -22,18 +21,14 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Button } from "../ui/button";
-import { ScrollArea } from "../ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { toast } from "sonner";
+
+import { useSupabaseUser } from "@/hooks/user-supabase-user";
+import { User, Workspace } from "@/types/supabase.types";
+import { PermissionsKey } from "@/types/global.type";
+import PermissionSelect from "./permission-select.global";
 
 interface WorkspaceCreatorProps {}
-
-enum Permissions {
-  private = "Private",
-  shared = "Shared",
-}
-
-type PermissionsKey = keyof typeof Permissions;
 
 const WorkspaceCreator: React.FC<WorkspaceCreatorProps> = ({}) => {
   const router = useRouter();
@@ -109,42 +104,10 @@ const WorkspaceCreator: React.FC<WorkspaceCreatorProps> = ({}) => {
         <Label htmlFor="permissions" className="text-sm text-muted-foreground">
           Permission
         </Label>
-        <Select
-          onValueChange={(option: PermissionsKey) => setPermissions(option)}
+        <PermissionSelect
           defaultValue={permissions}
-        >
-          <SelectTrigger className="w-full h-26">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="max-w-[462px]">
-            <SelectGroup>
-              <SelectItem value="private">
-                <div className="flex gap-4 justify-center items-center">
-                  <Lock className="size-4 flex-shrink-0" />
-                  <article className="text-left flex flex-col gap-0.5">
-                    <span className="font-medium">Private</span>
-                    <p className="text-xs text-muted-foreground">
-                      Your workspace is private to you. You can choose to share
-                      it later.
-                    </p>
-                  </article>
-                </div>
-              </SelectItem>
-              <SelectItem value="shared">
-                <div className="flex gap-4 justify-center items-center">
-                  <Users2 className="size-4 flex-shrink-0" />
-                  <article className="text-left flex flex-col gap-0.5">
-                    <span className="font-medium">Public</span>
-                    <p className="text-xs text-muted-foreground">
-                      Your workspace is public to everyone. You can invite
-                      collaborators.
-                    </p>
-                  </article>
-                </div>
-              </SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+          setPermission={setPermissions}
+        />
       </div>
 
       {permissions === "shared" && (

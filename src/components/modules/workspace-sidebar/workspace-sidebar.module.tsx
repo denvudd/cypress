@@ -94,12 +94,12 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = async ({
           subscription={subscription}
         />
         <WorkspaceNavigation workspaceId={workspaceId} />
-        <ScrollArea className="h-[450px] overflow-auto relative">
+        <div className="h-[450px] overflow-auto relative">
           <FoldersList
             defaultFolders={folders || []}
             workspaceId={workspaceId}
           />
-        </ScrollArea>
+        </div>
       </div>
       <UserPanel subscription={subscription} />
     </aside>

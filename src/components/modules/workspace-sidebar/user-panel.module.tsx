@@ -11,6 +11,11 @@ import CypressProfileIcon from "@/components/ui/icons/profile-icon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import { Subscription } from "@/types/supabase.types";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface UserPanelProps {
   subscription: Subscription | null;
@@ -45,7 +50,7 @@ const UserPanel: React.FC<UserPanelProps> = async ({ subscription }) => {
   };
 
   return (
-    <article className="hidden sm:flex justify-between items-center py-2 rounded-3xl">
+    <article className="hidden sm:flex border border-muted/50 bg-sidebar/80 blured-light dark:blured justify-between items-center p-2 rounded-lg">
       <aside className="flex justify-center items-center gap-2">
         <Avatar>
           <AvatarImage src={profile.avatarUrl} />
@@ -57,18 +62,26 @@ const UserPanel: React.FC<UserPanelProps> = async ({ subscription }) => {
           <span className="text-muted-foreground text-sm font-medium">
             {subscription?.status === "active" ? "Pro Plan" : "Free Plan"}
           </span>
-          <small
-            className="w-[100px] overflow-hidden overflow-ellipsis"
-          >
+          <small className="w-[100px] overflow-hidden overflow-ellipsis">
             {profile.email}
           </small>
         </div>
       </aside>
       <div className="flex items-center justify-center gap-1">
-        <LogoutButton>
-          <LogOut className="size-4" />
-        </LogoutButton>
-        <ModeToggle />
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <LogoutButton>
+              <LogOut className="size-4" />
+            </LogoutButton>
+          </TooltipTrigger>
+          <TooltipContent>Log out</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild  >
+            <ModeToggle />
+          </TooltipTrigger>
+          <TooltipContent>Switch theme</TooltipContent>
+        </Tooltip>
       </div>
     </article>
   );

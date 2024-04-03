@@ -127,12 +127,12 @@ const FolderContextMenu: React.FC<FolderContextMenuProps> = ({
       const { data, error } = await updateFolder({ inFavorite: "" }, pathId[0]);
 
       if (error) {
-        toast.error("Error! Could not move the folder to favorite", {
+        toast.error("Error! Could not remove the folder from favorite", {
           description: "Please try again later",
         });
       }
 
-      toast.success("Folder moved to favorite");
+      toast.success("Folder removed from favorite");
     }
   };
 
