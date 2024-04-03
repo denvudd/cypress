@@ -38,7 +38,7 @@ const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
     Workspace | undefined
   >(defaultValue);
   const [workspaceLogo, setWorkspaceLogo] =
-    React.useState<string>("/cypresslogo.svg");
+    React.useState<string>("");
 
   React.useEffect(() => {
     if (!state.workspaces.length) {
@@ -83,14 +83,18 @@ const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
       <DropdownMenu>
         <DropdownMenuTrigger className="text-left focus-visible:border-none select-none outline-none w-full">
           {selectedOption && (
-            <div className="flex w-full justify-between items-center rounded-md hover:bg-accent transition-all flex-row p-2 text-sm font-medium gap-2 cursor-pointer my-2">
-              <Image
-                src={workspaceLogo || "/cypresslogo.svg"}
-                alt="Workspace Logo"
-                width={20}
-                height={20}
-                objectFit="cover"
-              />
+            <div className="flex w-full justify-between items-center rounded-md hover:bg-accent transition-all flex-row p-2 text-sm font-medium gap-1 cursor-pointer my-2">
+              {workspaceLogo ? (
+                <Image
+                  src={workspaceLogo}
+                  alt="Workspace Logo"
+                  width={20}
+                  height={20}
+                  objectFit="cover"
+                />
+              ) : (
+                <div className="text-lg">{selectedOption.iconId}</div>
+              )}
               <div className="flex flex-col">
                 <p className="w-[170px] overflow-hidden overflow-ellipsis whitespace-nowrap">
                   {selectedOption.title}

@@ -20,8 +20,7 @@ const SelectedWorkspace: React.FC<SelectedWorkspaceProps> = ({
   className,
 }) => {
   const supabaseClient = createClientComponentClient();
-  const [workspaceLogo, setWorkspaceLogo] =
-    React.useState<string>("/cypresslogo.svg");
+  const [workspaceLogo, setWorkspaceLogo] = React.useState<string>("");
 
   React.useEffect(() => {
     if (workspace.logo) {
@@ -38,17 +37,21 @@ const SelectedWorkspace: React.FC<SelectedWorkspaceProps> = ({
       href={`/dashboard/${workspace.id}`}
       onClick={() => onClick && onClick(workspace)}
       className={cn(
-        "flex rounded-md hover:bg-muted-foreground/10 transition-all flex-row p-1 text-sm font-medium gap-2 cursor-pointer items-center my-2",
+        "flex rounded-md hover:bg-muted-foreground/10 transition-all flex-row p-1 text-sm font-medium gap-1 cursor-pointer items-center my-2",
         className
       )}
     >
-      <Image
-        src={workspaceLogo}
-        alt="Workspace Logo"
-        width={20}
-        height={20}
-        className="object-fit object-center"
-      />
+      {workspaceLogo ? (
+        <Image
+          src={workspaceLogo}
+          alt="Workspace Logo"
+          width={20}
+          height={20}
+          className="object-fit object-center"
+        />
+      ) : (
+        <div className="text-base">{workspace.iconId}</div>
+      )}
       <div className="flex flex-col">
         <p className="w-[170px] overflow-hidden overflow-ellipsis whitespace-nowrap">
           {workspace.title}

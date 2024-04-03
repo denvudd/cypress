@@ -20,7 +20,7 @@ const CypressHomeIcon: FC<CypressHomeIconProps> = ({className, ...props}) => {
       />
       <path
         d="M9 16C9 14.8954 9.89543 14 11 14H13C14.1046 14 15 14.8954 15 16V22H9V16Z"
-        className={`dark:fill-[#817EB5]  fill-Neutrals/neutrals-7 fill-Neutrals/neutrals-7 transition-all group-hover/native:fill-washed-blue-500`}
+        className={`dark:fill-[#817EB5] fill-muted-foreground transition-all group-hover/native:fill-washed-blue-500`}
       />
     </svg>
   );

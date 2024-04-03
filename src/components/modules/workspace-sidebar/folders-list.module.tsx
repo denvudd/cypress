@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { MAX_FOLDERS_FREE_PLAN } from "@/lib/config/constants";
 import { Accordion } from "@/components/ui/accordion";
 import FolderDropdown from "./folder-dropdown.module";
+import { getRandomEmoji } from "@/lib/utils";
 
 interface FoldersListProps {
   defaultFolders: Folder[];
@@ -80,7 +81,7 @@ const FoldersList: React.FC<FoldersListProps> = ({
       id: uuidv4(),
       data: null,
       createdAt: new Date().toISOString(),
-      iconId: "📁",
+      iconId: getRandomEmoji(),
       inTrash: null,
       inFavorite: null,
       title: `Untitled Folder (${folders.length + 1})`,
@@ -129,6 +130,7 @@ const FoldersList: React.FC<FoldersListProps> = ({
                 key={folder.id}
                 title={folder.title}
                 listType="folder"
+                createdAt={folder.createdAt}
                 id={folder.id}
                 inFavorite={folder.inFavorite}
                 iconId={folder.iconId}
@@ -167,6 +169,7 @@ const FoldersList: React.FC<FoldersListProps> = ({
                 title={folder.title}
                 listType="folder"
                 id={folder.id}
+                createdAt={folder.createdAt}
                 inFavorite={folder.inFavorite}
                 iconId={folder.iconId}
               />

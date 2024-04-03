@@ -14,12 +14,14 @@ import {
   DropdownMenuShortcut,
 } from "@/components/ui/dropdown-menu";
 import { useAppState } from "@/hooks/use-app-state";
+import { format } from "date-fns";
 
 interface FolderContextMenuProps {
   workspaceId: string;
   accordionId: string;
   userEmail: string | undefined;
   listType: "folder" | "file";
+  createdAt: string;
   inFavorite?: string | null;
 }
 
@@ -28,6 +30,7 @@ const FolderContextMenu: React.FC<FolderContextMenuProps> = ({
   inFavorite,
   userEmail,
   workspaceId,
+  createdAt,
   accordionId,
 }) => {
   const { dispatch, folderId } = useAppState();
@@ -35,7 +38,8 @@ const FolderContextMenu: React.FC<FolderContextMenuProps> = ({
   React.useEffect(() => {
     const handleKeyDown = async (event: KeyboardEvent) => {
       const isCopyLink = event.ctrlKey && event.shiftKey && event.key === "l";
-      const isMoveToTrash = event.ctrlKey && event.shiftKey && event.key === "Backspace";
+      const isMoveToTrash =
+        event.ctrlKey && event.shiftKey && event.key === "Backspace";
 
       if (isCopyLink) {
         event.preventDefault();
@@ -51,7 +55,7 @@ const FolderContextMenu: React.FC<FolderContextMenuProps> = ({
         event.stopPropagation();
 
         await handleMoveToTrash();
-        
+
         return undefined;
       }
     };
@@ -194,7 +198,7 @@ const FolderContextMenu: React.FC<FolderContextMenuProps> = ({
   return (
     <DropdownMenuContent
       align="start"
-      className="min-w-[260px] font-medium"
+      className="max-w-[260px] w-full font-medium"
       onCloseAutoFocus={(e) => e.preventDefault()}
     >
       {listType === "folder" && (
@@ -261,6 +265,11 @@ const FolderContextMenu: React.FC<FolderContextMenuProps> = ({
         <ExternalLink className="size-4" />
         Open in new tab
         <DropdownMenuShortcut>Alt + Click</DropdownMenuShortcut>
+      </DropdownMenuItem>
+      <DropdownMenuSeparator className="bg-muted-foreground/20" />
+      <DropdownMenuItem className="text-muted-foreground text-xs flex-col items-start pointer-events-none">
+        <span>Created at {format(createdAt, "dd MMM yyyy hh:mm aa")}</span> 
+        <span>by {userEmail}</span>
       </DropdownMenuItem>
     </DropdownMenuContent>
   );

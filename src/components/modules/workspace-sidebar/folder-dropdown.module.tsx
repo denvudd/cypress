@@ -37,6 +37,7 @@ interface FolderDropdownProps {
   title: string;
   listType: "folder" | "file";
   iconId: string;
+  createdAt: string;
   inFavorite?: string | null;
   disabled?: boolean;
 }
@@ -47,6 +48,7 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
   listType,
   title,
   inFavorite,
+  createdAt,
   disabled,
 }) => {
   const router = useRouter();
@@ -353,6 +355,7 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
           userEmail={user?.email}
           workspaceId={workspaceId}
           inFavorite={inFavorite}
+          createdAt={createdAt}
         />
       </DropdownMenu>
       <AccordionContent className="pb-0">
@@ -363,6 +366,7 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
             <FolderDropdown
               key={file.id}
               title={file.title}
+              createdAt={file.createdAt}
               listType="file"
               id={customFileId}
               iconId={file.iconId}
