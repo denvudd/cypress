@@ -4,3 +4,5 @@ export enum Permissions {
 }
 
 export type PermissionsKey = keyof typeof Permissions;
+
+export type DirectionType = "workspace" | "folder" | "file";

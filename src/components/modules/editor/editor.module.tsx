@@ -3,35 +3,38 @@
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { Loader } from "lucide-react";
 
-import { deleteFile, updateFile } from "@/queries/file";
+import { deleteFile } from "@/queries/file";
 import { deleteFolder, updateFolder } from "@/queries/folder";
 
+import EditorBreadcrumbs from "./editor-breadcrumbs.module";
+import EditorEmojiPicker from "./editor-emoji-picker.module";
+import EditorBanner from "./editor-banner/editor-banner.module";
+import EditorBannerPanel from "./editor-banner/editor-banner-panel.module";
 import { Button } from "@/components/ui/button";
-
-import { useAppState } from "@/hooks/use-app-state";
-import { File, Folder, Workspace } from "@/types/supabase.types";
-import { AppWorkspacesType } from "@/lib/providers/app-state.provider";
-
-import { TOOLBAR_OPTIONS } from "./config";
-import "quill/dist/quill.snow.css";
+import { Badge } from "@/components/ui/badge";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Loader } from "lucide-react";
-import Image from "next/image";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import EmojiPicker from "@/components/global/emoji-picker.global";
-import { updateWorkspace } from "@/queries/workspace";
+
+import { useAppState } from "@/hooks/use-app-state";
+import { File, Folder, Workspace } from "@/types/supabase.types";
+import { AppWorkspacesType } from "@/lib/providers/app-state.provider";
+import { DirectionType } from "@/types/global.type";
+
+import { TOOLBAR_OPTIONS } from "./config";
+import "quill/dist/quill.snow.css";
+import { cn } from "@/lib/utils";
 
 interface EditorProps {
   targetId: string;
   dirDetails: File | Folder | Workspace;
-  dirType: "workspace" | "folder" | "file";
+  dirType: DirectionType;
 }
 
 interface Collaborator {
@@ -86,14 +89,7 @@ const Editor: React.FC<EditorProps> = ({ dirDetails, dirType, targetId }) => {
       return selectedDir;
     }
 
-    return {
-      title: dirDetails.title,
-      iconId: dirDetails.iconId,
-      createdId: dirDetails.createdAt,
-      inTrash: dirDetails.inTrash,
-      data: dirDetails.data,
-      bannerUrl: dirDetails.bannerUrl,
-    };
+    return dirDetails;
   }, [appState, workspaceId, folderId, targetId]);
 
   React.useEffect(() => {
@@ -104,18 +100,22 @@ const Editor: React.FC<EditorProps> = ({ dirDetails, dirType, targetId }) => {
 
   const wrapperRef = React.useCallback(async (wrapper: HTMLElement | null) => {
     if (wrapper) {
-      wrapper.innerHTML = "";
-
       const editor = document.createElement("div");
       wrapper.append(editor);
 
       const Quill = (await import("quill")).default;
+      const Delta = await Quill.import("delta");
+
       const quillInstance = new Quill(editor, {
         theme: "snow",
         modules: {
           toolbar: TOOLBAR_OPTIONS,
         },
       });
+
+      quillInstance.setContents(
+        new Delta().insert(details?.title, { size: "huge", bold: true })
+      );
 
       setQuill(quillInstance);
     }
@@ -191,102 +191,6 @@ const Editor: React.FC<EditorProps> = ({ dirDetails, dirType, targetId }) => {
     );
   };
 
-  const handleSelectEmoji = async (icon: string) => {
-    if (!targetId) return undefined;
-
-    switch (dirType) {
-      case "workspace":
-        dispatch({
-          type: "UPDATE_WORKSPACE",
-          payload: { workspace: { iconId: icon }, workspaceId: targetId },
-        });
-
-        await updateWorkspace({ iconId: icon }, targetId);
-        break;
-      case "folder":
-        if (!workspaceId) return undefined;
-
-        dispatch({
-          type: "UPDATE_FOLDER",
-          payload: {
-            folder: { iconId: icon },
-            workspaceId,
-            folderId: targetId,
-          },
-        });
-        await updateFolder({ iconId: icon }, targetId);
-        break;
-      case "file":
-        if (!workspaceId || !folderId) return undefined;
-
-        dispatch({
-          type: "UPDATE_FILE",
-          payload: {
-            file: { iconId: icon },
-            workspaceId,
-            folderId,
-            fileId: targetId,
-          },
-        });
-        await updateFile({ iconId: icon }, targetId);
-
-        break;
-    }
-  };
-
-  const breadcrumbs = React.useMemo(() => {
-    if (!pathname || !appState.workspaces.length || !workspaceId)
-      return undefined;
-
-    const segments = pathname
-      .split("/")
-      .filter((value) => value && value !== "dashboard");
-    const workspaceDetails = appState.workspaces.find(
-      (workspace) => workspace.id === workspaceId
-    );
-    const workspaceBreadcrumb = workspaceDetails
-      ? `${workspaceDetails.iconId} ${workspaceDetails.title}`
-      : "";
-
-    if (segments.length === 1) {
-      // if workspace
-      return workspaceBreadcrumb;
-    }
-
-    const folderSegment = segments[1];
-    const folderDetails = workspaceDetails?.folders.find(
-      (folder) => folder.id === folderSegment
-    );
-    const folderBreadcrumb = folderDetails
-      ? `/ ${folderDetails.iconId} ${folderDetails.title}`
-      : "";
-
-    if (segments.length === 2) {
-      // if folder
-      return `${workspaceBreadcrumb} ${folderBreadcrumb}`;
-    }
-
-    const fileSegment = segments[2];
-    const fileDetails = folderDetails?.files.find(
-      (file) => file.id === fileSegment
-    );
-    const fileBreadcrumb = fileDetails
-      ? `/ ${fileDetails.iconId} ${fileDetails.title}`
-      : "";
-
-    // if file
-    return `${workspaceBreadcrumb} ${folderBreadcrumb} ${fileBreadcrumb}`;
-  }, [appState, pathname, workspaceId]);
-
-  const bannerImage = React.useMemo(() => {
-    return (
-      details?.bannerUrl &&
-      supabaseClient.storage
-        .from("file-banners")
-        .getPublicUrl(details?.bannerUrl).data.publicUrl
-    );
-  }, []);
-
   return (
     <>
       <div className="relative">
@@ -327,7 +231,8 @@ const Editor: React.FC<EditorProps> = ({ dirDetails, dirType, targetId }) => {
         )}
 
         <div className="flex flex-col-reverse text-sm sm:flex-row sm:justify-between justify-center sm:items-center sm:p-3 p-8">
-          <span>{breadcrumbs}</span>
+          <EditorBreadcrumbs />
+
           <div className="flex items-center gap-4">
             <Badge
               variant="secondary"
@@ -359,26 +264,28 @@ const Editor: React.FC<EditorProps> = ({ dirDetails, dirType, targetId }) => {
         </div>
       </div>
 
-      {details?.bannerUrl && (
-        <div className="relative w-full h-[200px]">
-          <Image
-            src={bannerImage ?? "/BannerImage.png"}
-            fill
-            className="w-full md:h-48 h-20 object-cover"
-            alt="Banner Image"
-          />
-        </div>
-      )}
+      <EditorBanner bannerUrl={details?.bannerUrl} />
 
       <div className="flex justify-center items-center flex-col mt-2 relative">
-        <div className="w-full self-center max-w-[800px] flex flex-col px-7 lg:my-8">
-          <div className="text-[80px]">
-            <EmojiPicker getValue={handleSelectEmoji}>
-              <div className="size-[100px] cursor-pointer transition-colors flex justify-center items-center hover:bg-muted rounded-md">
-                {details?.iconId}
-              </div>
-            </EmojiPicker>
-          </div>
+        <div
+          className={cn(
+            "w-full self-center max-w-[800px] flex flex-col px-7 lg:mt-4",
+            {
+              "lg:-mt-16": details?.bannerUrl,
+            }
+          )}
+        >
+          <EditorEmojiPicker
+            iconId={details?.iconId}
+            dirType={dirType}
+            targetId={targetId}
+          />
+
+          <EditorBannerPanel
+            bannerUrl={details?.bannerUrl}
+            dirType={dirType}
+            targetId={targetId}
+          />
         </div>
         {/* @ts-expect-error We create a Quill instance for wrapper HTMLElement manually */}
         <div id="container" ref={wrapperRef} className="max-w-[800px]"></div>

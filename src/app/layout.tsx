@@ -10,7 +10,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -27,7 +31,8 @@ export default function RootLayout({
       <body
         className={cn(
           "min-h-screen h-full antialiased bg-background layout-scrollbar-obtrusive text-render",
-          inter.className
+          inter.className,
+          inter.variable
         )}
       >
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>

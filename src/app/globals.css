@@ -63,22 +63,24 @@
   }
 }
 
+@layer utilities {
+  .blured {
+    /* Perfomance hack */
+    will-change: transform;
+    /* To make it works set opacity for background */
+    backdrop-filter: blur(15px) saturate(190%) contrast(65%) brightness(75%);
+  }
+
+  .blured-light {
+    /* Perfomance hack */
+    will-change: transform;
+    /* To make it works set opacity for background */
+    backdrop-filter: blur(15px) saturate(190%) contrast(65%) brightness(110%);
+  }
+}
+
 .animate-slide {
   animation: 40s slide linear infinite;
-}
-
-.blured {
-  /* Perfomance hack */
-  will-change: transform;
-  /* To make it works set opacity for background */
-  backdrop-filter: blur(15px) saturate(190%) contrast(65%) brightness(75%);
-}
-
-.blured-light {
-  /* Perfomance hack */
-  will-change: transform;
-  /* To make it works set opacity for background */
-  backdrop-filter: blur(15px) saturate(190%) contrast(65%) brightness(110%);
 }
 
 body.layout-scrollbar-obtrusive * {
@@ -139,11 +141,47 @@ body.layout-scrollbar-obtrusive * {
 }
 
 .ql-toolbar {
-  @apply flex flex-wrap items-center justify-center dark:bg-background/70 bg-white/40 backdrop-blur-md z-40 sticky top-0 !border-none left-0 right-0;
+  @apply flex flex-wrap items-center gap-2 justify-center z-40 sticky top-0 !border-none left-0 right-0;
 }
 
 .ql-formats {
-  @apply flex flex-shrink-0;
+  @apply flex flex-shrink-0 !mr-0;
+}
+
+.ql-formats button svg {
+  @apply stroke-muted-foreground;
+}
+
+.ql-formats button svg > .ql-stroke {
+  @apply stroke-muted-foreground;
+}
+
+.ql-formats button svg > .ql-fill {
+  @apply stroke-muted-foreground fill-muted-foreground;
+}
+
+.ql-picker-label::before {
+  @apply font-inter text-muted-foreground;
+}
+
+.ql-picker .ql-picker-label > svg .ql-stroke {
+  @apply stroke-muted-foreground;
+}
+
+.ql-snow .ql-picker.ql-size {
+  @apply w-[80px];
+}
+
+.ql-snow .ql-picker.ql-header {
+  @apply !w-[80px];
+}
+
+.ql-picker-label {
+  @apply !border-border bg-background text-foreground rounded-md transition-colors;
+}
+
+.ql-picker-options {
+  @apply !border-border !bg-popover/20 blured-light dark:blured text-foreground rounded-md shadow-md font-inter transition-colors animate-in fade-in-0 zoom-in-95;
 }
 
 .ql-container {
@@ -153,5 +191,10 @@ body.layout-scrollbar-obtrusive * {
 .ql-editor > p,
 ol,
 ul {
-  @apply dark:text-washed-purple-700;
+  @apply text-base font-inter;
+}
+
+.ql-editor.ql-blank::before {
+  font-size: 20px;
+  color: red;
 }
