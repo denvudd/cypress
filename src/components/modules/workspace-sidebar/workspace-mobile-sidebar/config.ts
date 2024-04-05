@@ -1,5 +1,4 @@
-import CypressPageIcon from "@/components/ui/icons/page-icon";
-import { MenuIcon } from "lucide-react";
+import { FileIcon, MenuIcon } from "lucide-react";
 
 export const MOBILE_SIDEBAR_NAVIGATION = [
   {
@@ -10,6 +9,6 @@ export const MOBILE_SIDEBAR_NAVIGATION = [
   {
     title: "Pages",
     id: "pages",
-    Icon: CypressPageIcon,
+    Icon: FileIcon,
   },
 ] as const;
