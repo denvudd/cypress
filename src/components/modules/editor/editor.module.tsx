@@ -1,14 +1,13 @@
 "use client";
 
 import React from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Loader } from "lucide-react";
 
-import { deleteFile, getFileDetails, updateFile } from "@/queries/file";
-import { deleteFolder, getFolderDetails, updateFolder } from "@/queries/folder";
-import { getWorkspaceDetails, updateWorkspace } from "@/queries/workspace";
+import { deleteFile } from "@/queries/file";
+import { deleteFolder, updateFolder } from "@/queries/folder";
 import { getAuthUser } from "@/queries/auth";
 
 import EditorBreadcrumbs from "./editor-breadcrumbs.module";
@@ -24,6 +23,8 @@ import {
 } from "@/components/ui/tooltip";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
+import { setupDirectionData } from "@/lib/editor/setup-direction-data";
+import { syncChangesWithDb } from "@/lib/editor/sync-changes-with-db";
 import { useAppState } from "@/hooks/use-app-state";
 import { useSocket } from "@/hooks/use-socket";
 import { useSupabaseUser } from "@/hooks/user-supabase-user";
@@ -31,6 +32,7 @@ import { useSupabaseUser } from "@/hooks/user-supabase-user";
 import { File, Folder, Workspace } from "@/types/supabase.types";
 import { AppWorkspacesType } from "@/lib/providers/app-state.provider";
 import { DirectionType } from "@/types/global.type";
+import { EditorRange, SocketEditorEvent } from "@/types/editor.types";
 
 import { TOOLBAR_OPTIONS } from "../../../lib/config/editor/modules";
 import { cn, generateColorFromEmail } from "@/lib/utils";
@@ -105,266 +107,11 @@ const Editor: React.FC<EditorProps> = ({ dirDetails, dirType, targetId }) => {
     return dirDetails;
   }, [appState, workspaceId, folderId, targetId]);
 
-  React.useEffect(() => {
-    if (typeof window !== "undefined") {
-      return undefined;
-    }
-  }, []);
-
-  React.useEffect(() => {
-    if (!targetId) return undefined;
-
-    if (!workspaceId || !quill) {
-      return undefined;
-    }
-
-    const updateDirectionData = async () => {
-      switch (dirType) {
-        case "file": {
-          const { data: selectedDir, error } = await getFileDetails(targetId);
-
-          if (!selectedDir || error) {
-            router.replace(`/dashboard`);
-            return undefined;
-          }
-
-          const file = selectedDir[0];
-
-          if (!file) {
-            router.replace(`/dashboard/${workspaceId}/${folderId}`);
-            return undefined;
-          }
-
-          if (!file.data) {
-            return undefined;
-          }
-
-          quill.setContents(JSON.parse(file.data || ""));
-
-          dispatch({
-            type: "UPDATE_FILE",
-            payload: {
-              file: { data: file.data },
-              fileId: targetId,
-              folderId: selectedDir[0].folderId,
-              workspaceId,
-            },
-          });
-
-          break;
-        }
-        case "folder": {
-          const { data: selectedDir, error } = await getFolderDetails(targetId);
-
-          if (!selectedDir || error) {
-            router.replace(`/dashboard`);
-            return undefined;
-          }
-
-          const folder = selectedDir[0];
-
-          if (!folder) {
-            router.replace(`/dashboard/${workspaceId}`);
-          }
-
-          if (!folder.data) {
-            return undefined;
-          }
-
-          quill.setContents(JSON.parse(folder.data) || "");
-
-          dispatch({
-            type: "UPDATE_FOLDER",
-            payload: {
-              folder: { data: folder.data },
-              folderId: targetId,
-              workspaceId,
-            },
-          });
-
-          break;
-        }
-        case "workspace": {
-          const { data: selectedDir, error } = await getWorkspaceDetails(
-            targetId
-          );
-
-          if (!selectedDir || error) {
-            router.replace(`/dashboard`);
-            return undefined;
-          }
-
-          const workspace = selectedDir[0];
-
-          if (!workspace) {
-            router.replace(`/dashboard/`);
-          }
-
-          if (!workspace.data) {
-            return undefined;
-          }
-
-          quill.setContents(JSON.parse(workspace.data) || "");
-
-          dispatch({
-            type: "UPDATE_WORKSPACE",
-            payload: {
-              workspace: { data: workspace.data },
-              workspaceId: targetId,
-            },
-          });
-
-          break;
-        }
-        default: {
-          return undefined;
-        }
-      }
-    };
-
-    updateDirectionData();
-  }, [targetId, workspaceId, folderId, fileId, dirType, quill]);
-
-  React.useEffect(() => {
-    if (!socket || !quill || !targetId) {
-      return undefined;
-    }
-
-    socket.emit("create-room", targetId);
-  }, [socket, quill, targetId]);
-
-  React.useEffect(() => {
-    if (!quill || !socket || !targetId || !user) {
-      return undefined;
-    }
-
-    const handleChangeSelection = (cursorId: string) => {
-      return (range: any, oldRange: any, source: string) => {
-        if (source !== "user" && !cursorId) return undefined;
-
-        socket.emit("send-cursor-move", range, targetId, cursorId);
-      };
-    };
-
-    const handleQuill = (delta: any, oldDelta: any, source: any) => {
-      if (source !== "user") {
-        return undefined;
-      }
-
-      if (saveTimerRef.current) {
-        clearTimeout(saveTimerRef.current);
-      }
-
-      setIsSaving(true);
-
-      const contents = quill.getContents();
-      const quillLength = quill.getLength();
-
-      saveTimerRef.current = setTimeout(async () => {
-        if (contents && !!quillLength && targetId) {
-          switch (dirType) {
-            case "file": {
-              if (!workspaceId || !folderId) return undefined;
-
-              dispatch({
-                type: "UPDATE_FILE",
-                payload: {
-                  file: { data: JSON.stringify(contents) },
-                  fileId: targetId,
-                  folderId,
-                  workspaceId,
-                },
-              });
-
-              updateFile({ data: JSON.stringify(contents) }, targetId);
-            }
-            case "folder": {
-              if (!workspaceId) return undefined;
-
-              dispatch({
-                type: "UPDATE_FOLDER",
-                payload: {
-                  folder: { data: JSON.stringify(contents) },
-                  workspaceId,
-                  folderId: targetId,
-                },
-              });
-
-              await updateFolder({ data: JSON.stringify(contents) }, targetId);
-            }
-            case "workspace": {
-              dispatch({
-                type: "UPDATE_WORKSPACE",
-                payload: {
-                  workspace: { data: JSON.stringify(contents) },
-                  workspaceId: targetId,
-                },
-              });
-
-              updateWorkspace({ data: JSON.stringify(contents) }, targetId);
-            }
-          }
-        }
-
-        setIsSaving(false);
-      }, 850);
-
-      socket.emit("send-changes", delta, targetId);
-    };
-
-    quill.on("text-change", handleQuill);
-    quill.on("selection-change", handleChangeSelection(user.id));
-
-    return () => {
-      quill.off("text-change", handleQuill);
-      quill.off("selection-change", handleChangeSelection);
-
-      if (saveTimerRef.current) {
-        clearTimeout(saveTimerRef.current);
-      }
-    };
-  }, [quill, socket, targetId, user, details, workspaceId, dirType, fileId, folderId]);
-
-  React.useEffect(() => {
-    if (!quill || !socket || !localCursors.length || !targetId) {
-      return undefined;
-    }
-
-    const handleSocket = (range: any, roomId: string, cursorId: string) => {
-      if (roomId === targetId) {
-        const cursorToMove = localCursors.find(
-          (cursor) => cursor.cursors()?.[0].id === cursorId
-        );
-
-        if (cursorToMove) {
-          cursorToMove.moveCursor(cursorId, range);
-        }
-      }
-    };
-
-    socket.on("receive-cursor-move", handleSocket);
-
-    return () => {
-      socket.off("receive-cursor-move", handleSocket);
-    };
-  }, [quill, socket, targetId, localCursors]);
-
-  React.useEffect(() => {
-    if (!quill || !socket) return undefined;
-
-    const handleSocket = (deltas: any, id: string) => {
-      if (id === targetId) {
-        quill.updateContents(deltas);
-      }
-    };
-
-    socket.on("receive-changes", handleSocket);
-
-    return () => {
-      socket.off("receive-changes", handleSocket);
-    };
-  }, [quill, socket, targetId]);
-
+  /** Function that initializes Editor and modules for React ref that accepts HTMLElement (actual ref). It appends editor div to it,
+   * dynamically imports Quill and relatives modules and creates instances of Quill, Delta and QuillCursors.
+   * Sets the configuration of the Quill such as toolbar and cursors. After initializing, it add to
+   * Quill instance the default content with name of workspace/file/folder.
+   */
   const wrapperRef = React.useCallback(async (wrapper: HTMLElement | null) => {
     if (wrapper) {
       const editor = document.createElement("div");
@@ -394,6 +141,160 @@ const Editor: React.FC<EditorProps> = ({ dirDetails, dirType, targetId }) => {
     }
   }, []);
 
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      return undefined;
+    }
+  }, []);
+
+  // Initialize editor data
+  React.useEffect(() => {
+    if (!targetId) return undefined;
+
+    if (!workspaceId || !quill) {
+      return undefined;
+    }
+
+    setupDirectionData({
+      dirType,
+      quill,
+      router,
+      targetId,
+      workspaceId,
+      dispatch,
+    });
+  }, [targetId, workspaceId, folderId, fileId, dirType, quill]);
+
+  // Create room when user joins
+  React.useEffect(() => {
+    if (!socket || !quill || !targetId) {
+      return undefined;
+    }
+
+    socket.emit(SocketEditorEvent.CreateRoom, targetId);
+  }, [socket, quill, targetId]);
+
+  // Update cursor position and synchronize data from editor with DB
+  React.useEffect(() => {
+    if (!quill || !socket || !targetId || !user) {
+      return undefined;
+    }
+
+    /** Updates cursor position. */
+    const handleChangeSelection = (cursorId: string) => {
+      return (range: EditorRange, oldRange: EditorRange, source: string) => {
+        if (source !== "user" && !cursorId) return undefined;
+        console.log(range, oldRange);
+
+        socket.emit(
+          SocketEditorEvent.SendCursorMove,
+          range,
+          targetId,
+          cursorId
+        );
+      };
+    };
+
+    /** Synchronizes data with DB on Quill changes */
+    const handleQuill = (delta: any, oldDelta: any, source: any) => {
+      if (source !== "user" || !workspaceId) {
+        return undefined;
+      }
+
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current);
+      }
+
+      setIsSaving(true);
+
+      const contents: any = quill.getContents();
+      const quillLength: number = quill.getLength();
+
+      syncChangesWithDb({
+        contents,
+        dirType,
+        folderId,
+        quillLength,
+        saveTimerRef,
+        targetId,
+        workspaceId,
+        dispatch,
+        setIsSaving,
+      });
+
+      socket.emit(SocketEditorEvent.SendChanges, delta, targetId);
+    };
+
+    quill.on(SocketEditorEvent.TextChange, handleQuill);
+    quill.on(SocketEditorEvent.SelectionChange, handleChangeSelection(user.id));
+
+    return () => {
+      quill.off(SocketEditorEvent.TextChange, handleQuill);
+      quill.off(SocketEditorEvent.SelectionChange, handleChangeSelection);
+
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current);
+      }
+    };
+  }, [
+    quill,
+    socket,
+    targetId,
+    user,
+    details,
+    workspaceId,
+    dirType,
+    fileId,
+    folderId,
+  ]);
+
+  // Receiving cursor position and moving cursor in editor
+  React.useEffect(() => {
+    if (!quill || !socket || !localCursors.length || !targetId) {
+      return undefined;
+    }
+
+    const handleSocket = (
+      range: EditorRange,
+      roomId: string,
+      cursorId: string
+    ) => {
+      if (roomId === targetId) {
+        const cursorToMove = localCursors.find(
+          (cursor) => cursor.cursors()?.[0].id === cursorId
+        );
+
+        if (cursorToMove) {
+          cursorToMove.moveCursor(cursorId, range);
+        }
+      }
+    };
+
+    socket.on(SocketEditorEvent.ReceiveCursorMove, handleSocket);
+
+    return () => {
+      socket.off(SocketEditorEvent.ReceiveCursorMove, handleSocket);
+    };
+  }, [quill, socket, targetId, localCursors]);
+
+  // Update content in editor in realtime
+  React.useEffect(() => {
+    if (!quill || !socket) return undefined;
+
+    const handleSocket = (deltas: any, id: string) => {
+      if (id === targetId) {
+        quill.updateContents(deltas);
+      }
+    };
+
+    socket.on(SocketEditorEvent.ReceiveChanges, handleSocket);
+
+    return () => {
+      socket.off(SocketEditorEvent.ReceiveChanges, handleSocket);
+    };
+  }, [quill, socket, targetId]);
+
+  // Synchronizing realtime collaborators via Supabase Realtime feature
   React.useEffect(() => {
     if (!targetId || !quill) return undefined;
 
@@ -451,8 +352,7 @@ const Editor: React.FC<EditorProps> = ({ dirDetails, dirType, targetId }) => {
     };
   }, [targetId, quill, supabaseClient, user]);
 
-  console.log(localCursors);
-
+  // Restore file from Trash to workspace
   const handleRestoreFile = async () => {
     if (dirType === "file") {
       if (!folderId || !workspaceId || !targetId) return undefined;
@@ -486,6 +386,7 @@ const Editor: React.FC<EditorProps> = ({ dirDetails, dirType, targetId }) => {
     }
   };
 
+  // Delete file permanently from Trash
   const handleDeleteFile = async () => {
     if (dirType === "file") {
       if (!folderId || !workspaceId || !targetId) return undefined;
