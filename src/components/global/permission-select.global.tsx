@@ -11,18 +11,23 @@ import { Lock, Users2 } from "lucide-react";
 import { PermissionsKey } from "@/types/global.type";
 
 interface PermissionSelectProps {
-  setPermission: React.Dispatch<React.SetStateAction<PermissionsKey>>
+  setPermission: React.Dispatch<React.SetStateAction<PermissionsKey>>;
+  onValueChange?: (value: PermissionsKey) => void;
   defaultValue: string | undefined;
 }
 
 const PermissionSelect: React.FC<PermissionSelectProps> = ({
   defaultValue,
+  onValueChange,
   setPermission,
 }) => {
   return (
     <Select
-      onValueChange={(option: PermissionsKey) => setPermission(option)}
+      onValueChange={(option: PermissionsKey) =>
+        onValueChange ? onValueChange(option) : setPermission(option)
+      }
       defaultValue={defaultValue}
+      value={defaultValue}
     >
       <SelectTrigger className="w-full h-26">
         <SelectValue />

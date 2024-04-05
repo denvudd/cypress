@@ -8,7 +8,11 @@ import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 
 import { deleteWorkspace, updateWorkspace } from "@/queries/workspace";
-import { addCollaborators, removeCollaborator } from "@/queries/collaborator";
+import {
+  addCollaborators,
+  getCollaborators,
+  removeCollaborator,
+} from "@/queries/collaborator";
 
 import PermissionSelect from "@/components/global/permission-select.global";
 import CollaboratorSearch from "@/components/global/collaborator-search.global";
@@ -30,6 +34,7 @@ import { useSupabaseUser } from "@/hooks/user-supabase-user";
 import { useAppState } from "@/hooks/use-app-state";
 import { PermissionsKey } from "@/types/global.type";
 import { Subscription, User, Workspace } from "@/types/supabase.types";
+import SettingsPermissionAlert from "./settings-permission-alert.module";
 
 interface SettingsProps {
   subscription: Subscription | null;
@@ -64,16 +69,35 @@ const Settings: React.FC<SettingsProps> = ({ subscription }) => {
     }
   }, [workspaceId, appState]);
 
+  React.useEffect(() => {
+    const fetchCollaborators = async () => {
+      if (!workspaceId) return undefined;
+      const response = await getCollaborators(workspaceId);
+
+      if (response.length) {
+        setPermission("shared");
+        setCollaborators(response);
+      }
+    };
+
+    fetchCollaborators();
+  }, [workspaceId]);
+
   if (!workspaceId) return undefined;
 
   const handleAddCollaborators = async (user: User) => {
-    await addCollaborators(collaborators, workspaceId);
+    await addCollaborators([user], workspaceId);
     setCollaborators([...collaborators, user]);
 
     router.refresh();
   };
 
   const handleRemoveCollaborator = async (user: User) => {
+    if (!workspaceId) return undefined;
+    if (collaborators.length === 1) {
+      setPermission("private");
+    }
+
     await removeCollaborator([user], workspaceId);
     setCollaborators(
       collaborators.filter((collaborator) => collaborator.id !== user.id)
@@ -121,8 +145,6 @@ const Settings: React.FC<SettingsProps> = ({ subscription }) => {
         upsert: true,
       });
 
-    console.log(data);
-
     if (!error) {
       dispatch({
         type: "UPDATE_WORKSPACE",
@@ -145,6 +167,14 @@ const Settings: React.FC<SettingsProps> = ({ subscription }) => {
 
     toast.success("Workspace deleted successfully!");
     router.replace("/dashboard");
+  };
+
+  const handlePermissionChange = (value: PermissionsKey) => {
+    if (value === "private") {
+      setIsOpenAlertMessage(true);
+    } else {
+      setPermission(value);
+    }
   };
 
   return (
@@ -202,6 +232,7 @@ const Settings: React.FC<SettingsProps> = ({ subscription }) => {
             <PermissionSelect
               defaultValue={permission}
               setPermission={setPermission}
+              onValueChange={handlePermissionChange}
             />
           </div>
 
@@ -285,6 +316,14 @@ const Settings: React.FC<SettingsProps> = ({ subscription }) => {
             </div>
           </Alert>
         </div>
+
+        <SettingsPermissionAlert
+          collaborators={collaborators}
+          isOpenAlertMessage={isOpenAlertMessage}
+          setIsOpenAlertMessage={setIsOpenAlertMessage}
+          setPermission={setPermission}
+          workspaceId={workspaceId}
+        />
       </DialogContent>
     </Dialog>
   );

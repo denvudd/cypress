@@ -21,6 +21,31 @@ export async function addCollaborators(users: User[], workspaceId: string) {
   return response;
 }
 
+/** Get collaborators for workspace by workspace ID */
+export async function getCollaborators(workspaceId: string) {
+  const response = await db
+    .select()
+    .from(collaborators)
+    .where(eq(collaborators.workspaceId, workspaceId));
+
+  if (!response.length) {
+    return [];
+  }
+
+  const userInformation: Promise<User | undefined>[] = response.map(
+    async (collaborator) => {
+      const exists = await db.query.users.findFirst({
+        where: (u, { eq }) => eq(u.id, collaborator.userId),
+      });
+
+      return exists;
+    }
+  );
+
+  const resolvedUsers = await Promise.all(userInformation);
+  return resolvedUsers.filter(Boolean) as User[];
+}
+
 /** Remove collaborator from public workspace */
 export async function removeCollaborator(users: User[], workspaceId: string) {
   const response = users.forEach(async (user: User) => {
