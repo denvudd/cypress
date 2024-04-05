@@ -141,7 +141,7 @@ body.layout-scrollbar-obtrusive * {
 }
 
 .ql-toolbar {
-  @apply flex flex-wrap items-center gap-2 justify-center z-40 sticky top-0 !border-none left-0 right-0;
+  @apply flex flex-wrap items-center gap-2 justify-center z-40 sticky top-0 !border-none rounded-lg left-0 right-0 dark:bg-background/70 bg-white/40 backdrop-blur-md;
 }
 
 .ql-formats {
@@ -181,7 +181,7 @@ body.layout-scrollbar-obtrusive * {
 }
 
 .ql-picker-options {
-  @apply !border-border !bg-popover/20 blured-light dark:blured text-foreground rounded-md shadow-md font-inter transition-colors animate-in fade-in-0 zoom-in-95;
+  @apply !border-border !bg-popover/90 blured-light dark:blured text-foreground rounded-md shadow-md font-inter transition-colors animate-in fade-in-0 zoom-in-95;
 }
 
 .ql-container {

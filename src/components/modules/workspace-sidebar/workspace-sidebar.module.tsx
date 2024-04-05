@@ -1,8 +1,8 @@
 import React from "react";
-import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import { Plus, PlusCircle } from "lucide-react";
+import { Plus } from "lucide-react";
+import { redirect } from "next/navigation";
 
 import { getUserSubscriptionStatus } from "@/queries/subscription";
 import { getFolders } from "@/queries/folder";
@@ -18,10 +18,9 @@ import PlanUsage from "./plan-usage.module";
 import CustomDialog from "@/components/global/custom-dialog.global";
 import FoldersList from "./folders-list.module";
 import WorkspaceNavigation from "./workspace-navigation.module";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import UserPanel from "./user-panel.module";
 
 import { cn } from "@/lib/utils";
-import UserPanel from "./user-panel.module";
 
 interface WorkspaceSidebarProps {
   workspaceId: string;
@@ -44,9 +43,7 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = async ({
     await getUserSubscriptionStatus(user.id);
   const { data: folders, error: foldersError } = await getFolders(workspaceId);
 
-  // if (subscriptionError || foldersError) redirect("/dashboard");
-  // console.log(subscriptionError)
-  // console.log(foldersError)
+  if (subscriptionError || foldersError) redirect("/error");
 
   const [privateWorkspaces, collaboratingWorkspaces, sharedWorkspaces] =
     await Promise.all([
@@ -65,9 +62,8 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = async ({
     <aside
       className={cn(
         "hidden sm:flex sm:flex-col w-[280px] shrink-0 p-4 md:gap-4 justify-between bg-sidebar z-40",
-        {
-          className,
-        }
+        "animate-in slide-in-from-left fade-in-0 duration-500 sm:animate-none",
+        className
       )}
     >
       <div className="">
@@ -85,15 +81,18 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = async ({
             </button>
           }
           header="Create a workspace"
-          content={<WorkspaceCreator/>}
+          content={<WorkspaceCreator />}
           description="Workspace give you the power to collaborate with others. You 
-        can change your workspace privacy settings after creating workspace too."
+          can change your workspace privacy settings after creating workspace too."
         />
         <PlanUsage
           foldersLength={folders?.length || 0}
           subscription={subscription}
         />
-        <WorkspaceNavigation workspaceId={workspaceId} subscription={subscription}  />
+        <WorkspaceNavigation
+          workspaceId={workspaceId}
+          subscription={subscription}
+        />
         <div className="h-[450px] overflow-auto relative">
           <FoldersList
             defaultFolders={folders || []}
