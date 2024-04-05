@@ -30,6 +30,7 @@ import {
 
 import { useSupabaseUser } from "@/hooks/user-supabase-user";
 import { useAppState } from "@/hooks/use-app-state";
+import { useSupabaseRealtime } from "@/hooks/use-supabase-realtime";
 import { cn } from "@/lib/utils";
 import { File } from "@/types/supabase.types";
 interface FolderDropdownProps {
@@ -53,6 +54,7 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
 }) => {
   const router = useRouter();
   const { user } = useSupabaseUser();
+  const supabaseRealtimeFile = useSupabaseRealtime();
   const { state: appState, dispatch, workspaceId, folderId } = useAppState();
 
   const [isEditing, setIsEditing] = React.useState<boolean>(false);
@@ -260,11 +262,14 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
   return (
     <AccordionItem
       value={id}
-      className={cn("relative my-1 border-b-0 border-white animate-in fade-in-0 zoom-in-95", {
-        "border-none text-md": isFolder,
-        "ml-6 pl-2 text-[16px] border-solid border-l border-l-muted-foreground/30":
-          !isFolder,
-      })}
+      className={cn(
+        "relative my-1 border-b-0 border-white animate-in fade-in-0 zoom-in-95",
+        {
+          "border-none text-md": isFolder,
+          "ml-6 pl-2 text-[16px] border-solid border-l border-l-muted-foreground/30":
+            !isFolder,
+        }
+      )}
       onClick={(event) => {
         handleControlItemClick(event);
       }}
