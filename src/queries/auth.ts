@@ -10,12 +10,20 @@ import db from "@/lib/supabase/db";
 
 /** Login user with credentials */
 export async function loginUser({ email, password }: LoginValidatorSchema) {
+  console.log("WORKS WORKS")
   const supabaseClient = createRouteHandlerClient({ cookies });
 
   const response = await supabaseClient.auth.signInWithPassword({
     email,
     password,
   });
+
+  if (response.error) {
+    return {
+      data: {user: null, session: null},
+      error: response.error.message
+    }
+  }
 
   return response;
 }

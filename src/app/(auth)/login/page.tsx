@@ -47,7 +47,8 @@ function LoginPage() {
 
     if (error) {
       form.reset();
-      setSubmitError(error.message);
+      console.log(error)
+      setSubmitError(error);
 
       return undefined;
     }
@@ -62,7 +63,7 @@ function LoginPage() {
           if (submitError) setSubmitError("");
         }}
         onSubmit={form.handleSubmit(onSubmit)}
-        className="w-full sm:justify-center sm:w-[400px] space-y-6 flex flex-col"
+        className="w-full sm:justify-center sm:w-[400px] space-y-4 flex flex-col"
       >
         <Link href="/" className="w-full flex justify-left items-center">
           <Image src={CypressLogo} alt="Cypress Logo" width={50} height={50} />
@@ -102,6 +103,7 @@ function LoginPage() {
         />
 
         {submitError && <FormMessage>{submitError}</FormMessage>}
+
         <Button
           type="submit"
           className="w-full py-5"

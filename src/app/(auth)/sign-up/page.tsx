@@ -76,7 +76,7 @@ const SignUpPage: React.FC<SignUpPageProps> = ({}) => {
           if (submitError) setSubmitError("");
         }}
         onSubmit={form.handleSubmit(onSubmit)}
-        className="w-full sm:justify-center sm:w-[400px] flex flex-col gap-6"
+        className="w-full sm:justify-center sm:w-[400px] flex flex-col gap-4"
       >
         <Link href="/" className="w-full flex justify-left items-center">
           <Image src={CypressLogo} alt="Cypress Logo" width={50} height={50} />

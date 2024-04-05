@@ -320,6 +320,22 @@ const Editor: React.FC<EditorProps> = ({ dirDetails, dirType, targetId }) => {
     };
   }, [quill, socket, targetId, user, details]);
 
+  React.useEffect(() => {
+    if (!quill || !socket) return undefined;
+
+    const handleSocket = (deltas: any, id: string) => {
+      if (id === targetId) {
+        quill.updateContents(deltas);
+      }
+    };
+
+    socket.on("receive-changes", handleSocket);
+
+    return () => {
+      socket.off("receive-changes", handleSocket);
+    }
+  }, [quill, socket, targetId]);
+
   const wrapperRef = React.useCallback(async (wrapper: HTMLElement | null) => {
     if (wrapper) {
       const editor = document.createElement("div");
