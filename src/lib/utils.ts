@@ -27,3 +27,15 @@ export function getRandomEmoji() {
 
   return businessEmojis[randomIndex];
 }
+
+export function generateColorFromEmail(email: string) {
+  const hash = email
+    .split("")
+    .reduce(
+      (prevHash, currChar) => prevHash + currChar.charCodeAt(0),
+      0
+    );
+    
+  return `hsl(${hash % 360}, 35%, 35%)`;
+
+}

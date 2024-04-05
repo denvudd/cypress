@@ -9,6 +9,7 @@ import { Loader } from "lucide-react";
 import { deleteFile, getFileDetails, updateFile } from "@/queries/file";
 import { deleteFolder, getFolderDetails, updateFolder } from "@/queries/folder";
 import { getWorkspaceDetails, updateWorkspace } from "@/queries/workspace";
+import { getAuthUser } from "@/queries/auth";
 
 import EditorBreadcrumbs from "./editor-breadcrumbs.module";
 import EditorEmojiPicker from "./editor-emoji-picker.module";
@@ -25,34 +26,33 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import { useAppState } from "@/hooks/use-app-state";
 import { useSocket } from "@/hooks/use-socket";
+import { useSupabaseUser } from "@/hooks/user-supabase-user";
 
 import { File, Folder, Workspace } from "@/types/supabase.types";
 import { AppWorkspacesType } from "@/lib/providers/app-state.provider";
 import { DirectionType } from "@/types/global.type";
 
 import { TOOLBAR_OPTIONS } from "../../../lib/config/editor/modules";
-import { cn } from "@/lib/utils";
+import { cn, generateColorFromEmail } from "@/lib/utils";
 import "quill/dist/quill.snow.css";
-import { useSupabaseUser } from "@/hooks/user-supabase-user";
-
 interface EditorProps {
   targetId: string;
   dirDetails: File | Folder | Workspace;
   dirType: DirectionType;
 }
 
-interface Collaborator {
+interface EditorCollaborator {
   id: string;
   email: string;
   avatarUrl: string;
+  presence_ref: string;
 }
 
 const Editor: React.FC<EditorProps> = ({ dirDetails, dirType, targetId }) => {
   const router = useRouter();
-  const { user } = useSupabaseUser();
-  const pathname = usePathname();
   const supabaseClient = createClientComponentClient();
-  const { socket, isConnected } = useSocket();
+  const { user } = useSupabaseUser();
+  const { socket } = useSocket();
 
   const {
     state: appState,
@@ -64,13 +64,10 @@ const Editor: React.FC<EditorProps> = ({ dirDetails, dirType, targetId }) => {
   // You can set to Quill instance type for development purpose and typesafety but
   // you should remove it in production because Quill is not tree-shakeable and imports dynamically
   const [quill, setQuill] = React.useState<any>(null);
-  const [collaborators, setCollaborators] = React.useState<Collaborator[]>([
-    {
-      id: "4124141",
-      email: "bCqjV@example.com",
-      avatarUrl: "4214141",
-    },
-  ]);
+  const [collaborators, setCollaborators] = React.useState<
+    EditorCollaborator[]
+  >([]);
+  const [localCursors, setLocalCursors] = React.useState<any[]>([]);
   const [isSaving, setIsSaving] = React.useState<boolean>(false);
 
   const saveTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -241,7 +238,13 @@ const Editor: React.FC<EditorProps> = ({ dirDetails, dirType, targetId }) => {
       return undefined;
     }
 
-    const handleChangeSelection = () => {};
+    const handleChangeSelection = (cursorId: string) => {
+      return (range: any, oldRange: any, source: string) => {
+        if (source !== "user" && !cursorId) return undefined;
+
+        socket.emit("send-cursor-move", range, targetId, cursorId);
+      };
+    };
 
     const handleQuill = (delta: any, oldDelta: any, source: any) => {
       if (source !== "user") {
@@ -310,15 +313,41 @@ const Editor: React.FC<EditorProps> = ({ dirDetails, dirType, targetId }) => {
     };
 
     quill.on("text-change", handleQuill);
+    quill.on("selection-change", handleChangeSelection(user.id));
 
     return () => {
       quill.off("text-change", handleQuill);
+      quill.off("selection-change", handleChangeSelection);
 
       if (saveTimerRef.current) {
         clearTimeout(saveTimerRef.current);
       }
     };
-  }, [quill, socket, targetId, user, details]);
+  }, [quill, socket, targetId, user, details, workspaceId, dirType, fileId, folderId]);
+
+  React.useEffect(() => {
+    if (!quill || !socket || !localCursors.length || !targetId) {
+      return undefined;
+    }
+
+    const handleSocket = (range: any, roomId: string, cursorId: string) => {
+      if (roomId === targetId) {
+        const cursorToMove = localCursors.find(
+          (cursor) => cursor.cursors()?.[0].id === cursorId
+        );
+
+        if (cursorToMove) {
+          cursorToMove.moveCursor(cursorId, range);
+        }
+      }
+    };
+
+    socket.on("receive-cursor-move", handleSocket);
+
+    return () => {
+      socket.off("receive-cursor-move", handleSocket);
+    };
+  }, [quill, socket, targetId, localCursors]);
 
   React.useEffect(() => {
     if (!quill || !socket) return undefined;
@@ -333,7 +362,7 @@ const Editor: React.FC<EditorProps> = ({ dirDetails, dirType, targetId }) => {
 
     return () => {
       socket.off("receive-changes", handleSocket);
-    }
+    };
   }, [quill, socket, targetId]);
 
   const wrapperRef = React.useCallback(async (wrapper: HTMLElement | null) => {
@@ -344,10 +373,16 @@ const Editor: React.FC<EditorProps> = ({ dirDetails, dirType, targetId }) => {
       const Quill = (await import("quill")).default;
       const Delta = await Quill.import("delta");
 
+      const QuillCursors = (await import("quill-cursors")).default;
+      Quill.register("modules/cursors", QuillCursors);
+
       const quillInstance = new Quill(editor, {
         theme: "snow",
         modules: {
           toolbar: TOOLBAR_OPTIONS,
+          cursors: {
+            transformOnTextChange: true,
+          },
         },
       });
 
@@ -358,6 +393,65 @@ const Editor: React.FC<EditorProps> = ({ dirDetails, dirType, targetId }) => {
       setQuill(quillInstance);
     }
   }, []);
+
+  React.useEffect(() => {
+    if (!targetId || !quill) return undefined;
+
+    const room = supabaseClient.channel(targetId);
+
+    const subscription = room.on("presence", { event: "sync" }, () => {
+      const newState = room.presenceState();
+      const newCollaborators = Object.values(
+        newState
+      ).flat() as unknown as EditorCollaborator[];
+      setCollaborators(newCollaborators);
+
+      if (user) {
+        const allCursors: any[] = [];
+
+        newCollaborators.forEach((collaborator) => {
+          if (collaborator.id !== user.id) {
+            const userCursor = quill.getModule("cursors");
+
+            userCursor.createCursor(
+              collaborator.id,
+              collaborator.email.split("@")[0],
+              generateColorFromEmail(collaborator.email)
+            );
+
+            allCursors.push(userCursor);
+          }
+        });
+
+        setLocalCursors(allCursors);
+      }
+    });
+
+    subscription.subscribe(async (status) => {
+      if (status !== "SUBSCRIBED" || !user) return undefined;
+
+      const response = await getAuthUser(user.id);
+
+      if (!response) return undefined;
+
+      const avatarUrl =
+        response.avatarUrl &&
+        supabaseClient.storage.from("avatars").getPublicUrl(response.avatarUrl)
+          .data.publicUrl;
+
+      room.track({
+        id: user.id,
+        email: user.email?.split("@")[0],
+        avatarUrl: avatarUrl || "",
+      });
+    });
+
+    return () => {
+      supabaseClient.removeChannel(room);
+    };
+  }, [targetId, quill, supabaseClient, user]);
+
+  console.log(localCursors);
 
   const handleRestoreFile = async () => {
     if (dirType === "file") {
@@ -484,12 +578,22 @@ const Editor: React.FC<EditorProps> = ({ dirDetails, dirType, targetId }) => {
               {collaborators.map((collaborator) => (
                 <Tooltip key={collaborator.id}>
                   <TooltipTrigger asChild>
-                    <Avatar className="-ml-3 bg-background border border-muted-foreground/50 flex items-center justify-center size-8 rounded-full">
+                    <Avatar
+                      className="-ml-3 flex border-none items-center justify-center size-8 rounded-full animate-in 
+                    fade-in-0 slide-in-from-right-[50%] zoom-in-95"
+                    >
                       <AvatarImage
                         src={collaborator.avatarUrl || ""}
                         className="rounded-full"
                       />
-                      <AvatarFallback>
+                      <AvatarFallback
+                        className="text-white font-medium"
+                        style={{
+                          backgroundColor: generateColorFromEmail(
+                            collaborator.email
+                          ),
+                        }}
+                      >
                         {collaborator.email.substring(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
