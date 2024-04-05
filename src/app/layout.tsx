@@ -9,6 +9,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { SocketProvider } from "@/lib/providers/socket.provider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -38,7 +39,11 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <SupabaseUserProvider>
             <AppStateProvider>
-              <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
+              <SocketProvider>
+                <TooltipProvider delayDuration={300}>
+                  {children}
+                </TooltipProvider>
+              </SocketProvider>
             </AppStateProvider>
           </SupabaseUserProvider>
         </ThemeProvider>

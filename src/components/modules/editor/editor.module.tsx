@@ -23,13 +23,15 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import { useAppState } from "@/hooks/use-app-state";
+import { useSocket } from "@/hooks/use-socket";
+
 import { File, Folder, Workspace } from "@/types/supabase.types";
 import { AppWorkspacesType } from "@/lib/providers/app-state.provider";
 import { DirectionType } from "@/types/global.type";
 
 import { TOOLBAR_OPTIONS } from "./config";
-import "quill/dist/quill.snow.css";
 import { cn } from "@/lib/utils";
+import "quill/dist/quill.snow.css";
 
 interface EditorProps {
   targetId: string;
@@ -47,6 +49,7 @@ const Editor: React.FC<EditorProps> = ({ dirDetails, dirType, targetId }) => {
   const router = useRouter();
   const pathname = usePathname();
   const supabaseClient = createClientComponentClient();
+  const { socket } = useSocket();
 
   const { state: appState, folderId, workspaceId, dispatch } = useAppState();
   const [quill, setQuill] = React.useState<any>();
