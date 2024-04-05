@@ -51,12 +51,15 @@ export type Action =
     }
   | {
       type: "UPDATE_WORKSPACE";
-      payload: { workspace: Partial<AppWorkspacesType>; workspaceId: string };
+      payload: {
+        workspace: Omit<Partial<Workspace>, "id">;
+        workspaceId: string;
+      };
     }
   | {
       type: "UPDATE_FOLDER";
       payload: {
-        folder: Partial<AppFoldersType>;
+        folder: Omit<Partial<AppFoldersType>, "id">;
         workspaceId: string;
         folderId: string;
       };
@@ -64,7 +67,7 @@ export type Action =
   | {
       type: "UPDATE_FILE";
       payload: {
-        file: Partial<File>;
+        file: Omit<Partial<File>, "id">;
         folderId: string;
         workspaceId: string;
         fileId: string;

@@ -13,7 +13,7 @@ import {
   PRICING_CARDS,
   PRICING_PLANS,
   TESTIMONIAL_USERS,
-} from "@/lib/config/constants";
+} from "@/lib/config/global/constants";
 import { cn } from "@/lib/utils";
 
 import calendarBanner from "../../../public/cal.png";

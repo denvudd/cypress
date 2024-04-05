@@ -164,8 +164,6 @@ export async function updateWorkspace(
       .set(workspace)
       .where(eq(workspaces.id, workspaceId));
 
-    revalidatePath(`/dashboard/${workspaceId}`);
-
     return {
       data: null,
       error: null,

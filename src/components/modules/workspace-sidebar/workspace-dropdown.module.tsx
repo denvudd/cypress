@@ -1,8 +1,9 @@
 "use client";
 
 import React from "react";
-
-import { useAppState } from "@/hooks/use-app-state";
+import Image from "next/image";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { CaretSortIcon } from "@radix-ui/react-icons";
 
 import SelectedWorkspace from "./selected-workspace.module";
 import {
@@ -14,10 +15,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import { useAppState } from "@/hooks/use-app-state";
 import { Workspace } from "@/types/supabase.types";
-import { CaretSortIcon } from "@radix-ui/react-icons";
-import Image from "next/image";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+
 interface WorkspaceDropdownProps {
   privateWorkspaces: Workspace[];
   sharedWorkspaces: Workspace[];
@@ -37,8 +37,7 @@ const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
   const [selectedOption, setSelectedOption] = React.useState<
     Workspace | undefined
   >(defaultValue);
-  const [workspaceLogo, setWorkspaceLogo] =
-    React.useState<string>("");
+  const [workspaceLogo, setWorkspaceLogo] = React.useState<string>("");
 
   React.useEffect(() => {
     if (!state.workspaces.length) {
@@ -83,7 +82,7 @@ const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
       <DropdownMenu>
         <DropdownMenuTrigger className="text-left focus-visible:border-none select-none outline-none w-full">
           {selectedOption && (
-            <div className="flex w-full justify-between items-center rounded-md hover:bg-accent transition-all flex-row p-2 text-sm font-medium gap-1 cursor-pointer my-2">
+            <div className="flex w-full justify-between items-center rounded-md hover:bg-accent transition-all flex-row p-2 text-sm font-medium gap-1 cursor-pointer">
               {workspaceLogo ? (
                 <Image
                   src={workspaceLogo}

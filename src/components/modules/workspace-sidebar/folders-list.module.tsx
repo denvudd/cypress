@@ -16,7 +16,7 @@ import { useSupabaseUser } from "@/hooks/user-supabase-user";
 import { v4 as uuidv4 } from "uuid";
 import { createFolder } from "@/queries/folder";
 import { toast } from "sonner";
-import { MAX_FOLDERS_FREE_PLAN } from "@/lib/config/constants";
+import { MAX_FOLDERS_FREE_PLAN } from "@/lib/config/global/constants";
 import { Accordion } from "@/components/ui/accordion";
 import FolderDropdown from "./folder-dropdown.module";
 import { getRandomEmoji } from "@/lib/utils";

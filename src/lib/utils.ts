@@ -1,8 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { MAX_FOLDERS_FREE_PLAN } from "./config/constants";
-import { Folder } from "@/types/supabase.types";
-import { AppWorkspacesType } from "./providers/app-state.provider";
+import { MAX_FOLDERS_FREE_PLAN } from "./config/global/constants";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
