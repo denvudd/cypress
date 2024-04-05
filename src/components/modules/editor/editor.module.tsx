@@ -300,6 +300,17 @@ const Editor: React.FC<EditorProps> = ({ dirDetails, dirType, targetId }) => {
 
     const room = supabaseClient.channel(targetId);
 
+    // Notifies when user joins if it's not the current user
+    const join = room.on("presence", { event: "join" }, ({ newPresences }) => {
+      const newCollaborators = Object.values(
+        newPresences
+      ).flat() as unknown as EditorCollaborator[];
+
+      if (newCollaborators[0] && newCollaborators[0].id !== user?.id) {
+        toast.info(`${newCollaborators[0]?.email} joined the room.`);
+      }
+    });
+
     const subscription = room.on("presence", { event: "sync" }, () => {
       const newState = room.presenceState();
       const newCollaborators = Object.values(
@@ -346,6 +357,21 @@ const Editor: React.FC<EditorProps> = ({ dirDetails, dirType, targetId }) => {
         avatarUrl: avatarUrl || "",
       });
     });
+
+    // Notifies when user lefts if it's not the current user
+    const leave = room.on(
+      "presence",
+      { event: "leave" },
+      ({ leftPresences }) => {
+        const leftCollaborators = Object.values(
+          leftPresences
+        ).flat() as unknown as EditorCollaborator[];
+
+        if (leftCollaborators[0] && leftCollaborators[0].id !== user?.id) {
+          toast.info(`${leftCollaborators[0]?.email} left the room.`);
+        }
+      }
+    );
 
     return () => {
       supabaseClient.removeChannel(room);
@@ -530,8 +556,12 @@ const Editor: React.FC<EditorProps> = ({ dirDetails, dirType, targetId }) => {
             targetId={targetId}
           />
         </div>
-        {/* @ts-expect-error We create a Quill instance for wrapper HTMLElement manually */}
-        <div id="container" ref={wrapperRef} className="max-w-[800px]"></div>
+        <div
+          id="container"
+          /* @ts-expect-error We create a Quill instance for wrapper HTMLElement manually */
+          ref={wrapperRef}
+          className="max-w-[800px] mb-20"
+        ></div>
       </div>
     </>
   );

@@ -83,27 +83,29 @@ const WorkspaceDropdown: React.FC<WorkspaceDropdownProps> = ({
         <DropdownMenuTrigger className="text-left focus-visible:border-none select-none outline-none w-full">
           {selectedOption && (
             <div className="flex w-full justify-between items-center rounded-md hover:bg-accent transition-all flex-row p-2 text-sm font-medium gap-1 cursor-pointer">
-              {workspaceLogo ? (
-                <Image
-                  src={workspaceLogo}
-                  alt="Workspace Logo"
-                  width={20}
-                  height={20}
-                  objectFit="cover"
-                />
-              ) : (
-                <div className="text-lg">{selectedOption.iconId}</div>
-              )}
-              <div className="flex flex-col">
-                <p className="w-[170px] overflow-hidden overflow-ellipsis whitespace-nowrap">
-                  {selectedOption.title}
-                </p>
+              <div className="flex items-center gap-2">
+                {workspaceLogo ? (
+                  <Image
+                    src={workspaceLogo}
+                    alt="Workspace Logo"
+                    width={20}
+                    height={20}
+                    objectFit="cover"
+                  />
+                ) : (
+                  <div className="text-lg">{selectedOption.iconId}</div>
+                )}
+                <div className="flex flex-col">
+                  <p className="w-[170px] overflow-hidden overflow-ellipsis whitespace-nowrap">
+                    {selectedOption.title}
+                  </p>
+                </div>
               </div>
               <CaretSortIcon className="size-4 text-muted-foreground flex-shrink-0" />
             </div>
           )}
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="h-[190px] overflow-y-auto w-[228px]">
+        <DropdownMenuContent className="h-[190px] overflow-y-auto w-[320px] sm:w-[228px]">
           <DropdownMenuLabel>Private</DropdownMenuLabel>
           <DropdownMenuSeparator className="bg-muted-foreground/20" />
           {!!privateWorkspaces.length ? (

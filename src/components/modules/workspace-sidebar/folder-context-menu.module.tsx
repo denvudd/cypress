@@ -33,7 +33,7 @@ const FolderContextMenu: React.FC<FolderContextMenuProps> = ({
   createdAt,
   accordionId,
 }) => {
-  const { dispatch, folderId } = useAppState();
+  const { dispatch, folderId, fileId } = useAppState();
 
   React.useEffect(() => {
     const handleKeyDown = async (event: KeyboardEvent) => {
@@ -143,21 +143,21 @@ const FolderContextMenu: React.FC<FolderContextMenuProps> = ({
   const handleMoveToTrash = async () => {
     if (!userEmail || !workspaceId) return undefined;
 
-    const pathId = accordionId.split("folder");
-
     if (listType === "folder") {
+      if (!folderId) return undefined;
+
       dispatch({
         type: "UPDATE_FOLDER",
         payload: {
           folder: { inTrash: `Deleted by ${userEmail}` },
-          folderId: pathId[0],
+          folderId,
           workspaceId,
         },
       });
 
       const { data, error } = await updateFolder(
         { inTrash: `Deleted by ${userEmail}` },
-        pathId[0]
+        folderId
       );
 
       if (error) {
@@ -170,19 +170,21 @@ const FolderContextMenu: React.FC<FolderContextMenuProps> = ({
     }
 
     if (listType === "file") {
+      if (!fileId || !folderId) return undefined;
+
       dispatch({
         type: "UPDATE_FILE",
         payload: {
           file: { inTrash: `Deleted by ${userEmail}` },
-          folderId: pathId[0],
+          folderId,
           workspaceId,
-          fileId: pathId[1],
+          fileId,
         },
       });
 
       const { data, error } = await updateFile(
         { inTrash: `Deleted by ${userEmail}` },
-        pathId[1]
+        fileId
       );
 
       if (error) {

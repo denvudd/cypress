@@ -102,7 +102,6 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
     }
 
     if (listType === "file") {
-      console.log(`/dashboard/${workspaceId}/${folderId}/${fileId}`);
       router.push(`/dashboard/${workspaceId}/${folderId}/${fileId}`);
     }
   };
@@ -173,7 +172,7 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
       payload: { file: newFile, folderId: id, workspaceId },
     });
 
-    const { data, error } = await createFile(newFile);
+    const { error } = await createFile(newFile);
 
     if (error) {
       toast.error("Error! Could not create your file", {
