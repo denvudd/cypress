@@ -9,5 +9,6 @@ namespace NodeJS {
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: string | undefined;
     STRIPE_SECRET_KEY: string | undefined;
     STRIPE_WEBHOOK_SECRET: string | undefined;
+    NEXT_PUBLIC_RAILWAY_URL: string | undefined;
   }
 }
