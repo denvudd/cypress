@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { type AuthUser } from "@supabase/supabase-js";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { v4 as uuidv4 } from "uuid";
+import { InfoIcon } from "lucide-react";
 
 import { createWorkspace } from "@/queries/workspace";
 
@@ -22,6 +23,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "../ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 import { useAppState } from "@/hooks/use-app-state";
 import {
@@ -165,8 +167,21 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
             </div>
 
             <div className="w-full space-y-1">
-              <Label htmlFor="logo" className="text-sm text-muted-foreground">
-                Workspace Logo
+              <Label
+                htmlFor="workspaceLogo"
+                className="text-sm text-muted-foreground flex items-center gap-1.5"
+              >
+                Workspace logo
+                {subscription?.status !== "active" && (
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <InfoIcon className="size-3.5" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      You can change the workspace logo only with Pro plan.
+                    </TooltipContent>
+                  </Tooltip>
+                )}
               </Label>
               <Input
                 id="logo"

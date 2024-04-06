@@ -1,25 +1,26 @@
 "use client";
 
 import React from "react";
+import { v4 as uuidv4 } from "uuid";
+import { PlusIcon } from "lucide-react";
+import { toast } from "sonner";
 
-import { useAppState } from "@/hooks/use-app-state";
-import { AppFoldersType } from "@/lib/providers/app-state.provider";
-import { Folder } from "@/types/supabase.types";
+import { createFolder } from "@/queries/folder";
+
+import FolderDropdown from "./folder-dropdown.module";
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { PlusIcon } from "lucide-react";
-import { useSupabaseUser } from "@/hooks/user-supabase-user";
-import { v4 as uuidv4 } from "uuid";
-import { createFolder } from "@/queries/folder";
-import { toast } from "sonner";
-import { MAX_FOLDERS_FREE_PLAN } from "@/lib/config/global/constants";
 import { Accordion } from "@/components/ui/accordion";
-import FolderDropdown from "./folder-dropdown.module";
+
+import { useAppState } from "@/hooks/use-app-state";
+import { useSupabaseUser } from "@/hooks/user-supabase-user";
+import { useSubscriptionModal } from "@/hooks/use-subscription-modal";
 import { getRandomEmoji } from "@/lib/utils";
+import { MAX_FOLDERS_FREE_PLAN } from "@/lib/config/global/constants";
+import { Folder } from "@/types/supabase.types";
 
 interface FoldersListProps {
   defaultFolders: Folder[];
@@ -31,6 +32,7 @@ const FoldersList: React.FC<FoldersListProps> = ({
   workspaceId,
 }) => {
   const { subscription } = useSupabaseUser();
+  const { isOpen, setIsOpen } = useSubscriptionModal();
   const { state: appState, folderId, dispatch } = useAppState();
 
   const [folders, setFolders] = React.useState<Folder[]>(defaultFolders);
@@ -59,7 +61,6 @@ const FoldersList: React.FC<FoldersListProps> = ({
   }, [defaultFolders, workspaceId]);
 
   React.useEffect(() => {
-    // console.log('find', appState.workspaces.find((workspace) => workspace.id === workspaceId))
     setFolders(
       appState.workspaces.find((workspace) => workspace.id === workspaceId)
         ?.folders || []
@@ -73,8 +74,10 @@ const FoldersList: React.FC<FoldersListProps> = ({
   }, [folders]);
 
   const handleAddFolder = async () => {
+    // Check if user has reached the limit
     if (folders?.length >= MAX_FOLDERS_FREE_PLAN && !subscription) {
-      // WIP
+      setIsOpen(true);
+      return undefined;
     }
 
     const newFolder: Folder = {

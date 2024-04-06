@@ -136,7 +136,7 @@ const LandingPage: React.FC<LandingPageProps> = ({}) => {
             ))}
         </div>
       </section>
-      <section className="mt-20 pb-20 px-4 sm:px-6">
+      <section className="mt-20 pb-20 px-4 sm:px-6" id="pricing">
         <TitleSection
           title="The Perfect Plan For You"
           subTitle="Experience all the benefits of our platform. Select a plan that suits your needs and take your productivity to new heights."
@@ -207,21 +207,13 @@ const LandingPage: React.FC<LandingPageProps> = ({}) => {
               }
               cardFooter={
                 <ul
-                  className="font-normal
-                  flex
-                  mb-2
-                  flex-col
-                  gap-4
-                "
+                  className="font-normal flex mb-2 flex-col gap-4"
                 >
                   <small>{card.highlightFeature}</small>
                   {card.freatures.map((feature) => (
                     <li
                       key={feature}
-                      className="flex
-                      items-center
-                      gap-2
-                    "
+                      className="flex items-center gap-2"
                     >
                       <Image src={checkIcon} alt="Check Icon" />
                       {feature}

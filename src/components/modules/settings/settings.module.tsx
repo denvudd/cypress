@@ -1,9 +1,10 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { LogOut, Plus, Trash } from "lucide-react";
+import { ExternalLink, InfoIcon, LogOut, Plus, Trash } from "lucide-react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 
@@ -19,26 +20,33 @@ import PermissionSelect from "@/components/global/permission-select.global";
 import CollaboratorSearch from "@/components/global/collaborator-search.global";
 import CypressSettingsIcon from "@/components/ui/icons/settings-icon";
 import SettingsPermissionAlert from "./settings-permission-alert.module";
+import LogoutButton from "@/components/global/logout-button.global";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
 import { useSupabaseUser } from "@/hooks/user-supabase-user";
 import { useAppState } from "@/hooks/use-app-state";
-import { generateColorFromEmail } from "@/lib/utils";
+import { useSubscriptionModal } from "@/hooks/use-subscription-modal";
+import { cn, generateColorFromEmail } from "@/lib/utils";
 
 import { PermissionsKey } from "@/types/global.type";
 import { Subscription, User, Workspace } from "@/types/supabase.types";
-import LogoutButton from "@/components/global/logout-button.global";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface SettingsProps {
   subscription: Subscription | null;
@@ -49,6 +57,7 @@ const Settings: React.FC<SettingsProps> = ({ subscription }) => {
   const supabaseClient = createClientComponentClient();
   const { user } = useSupabaseUser();
   const { state: appState, workspaceId, dispatch } = useAppState();
+  const { setIsOpen } = useSubscriptionModal();
 
   const [permission, setPermission] = React.useState<PermissionsKey>("private");
   const [collaborators, setCollaborators] = React.useState<User[]>([]);
@@ -265,9 +274,19 @@ const Settings: React.FC<SettingsProps> = ({ subscription }) => {
             <div className="space-y-1">
               <Label
                 htmlFor="workspaceLogo"
-                className="text-sm text-muted-foreground"
+                className="text-sm text-muted-foreground flex items-center gap-1.5"
               >
                 Workspace logo
+                {subscription?.status !== "active" && (
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <InfoIcon className="size-3.5" />
+                    </TooltipTrigger>
+                    <TooltipContent align="start">
+                      You can change the workspace logo only with Pro plan.
+                    </TooltipContent>
+                  </Tooltip>
+                )}
               </Label>
               <Input
                 name="workspaceLogo"
@@ -386,7 +405,6 @@ const Settings: React.FC<SettingsProps> = ({ subscription }) => {
               <div className="flex justify-end">
                 <Button
                   type="submit"
-                  size="sm"
                   variant="destructive"
                   className="mt-4"
                   isLoading={isDeleting}
@@ -445,7 +463,7 @@ const Settings: React.FC<SettingsProps> = ({ subscription }) => {
                 </div>
               </div>
 
-              <div className="flex justify-center">
+              <div className="flex justify-end">
                 <LogoutButton
                   className="flex items-center gap-2"
                   size="default"
@@ -454,6 +472,49 @@ const Settings: React.FC<SettingsProps> = ({ subscription }) => {
                   <LogOut className="size-4" />
                 </LogoutButton>
               </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <DialogHeader>
+              <DialogTitle>Billing & Plan</DialogTitle>
+              <DialogDescription>
+                You are currently on a{" "}
+                {subscription?.status === "active" ? "Pro" : "Free"} plan.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="flex justify-end gap-2">
+              <Link
+                href="/#pricing"
+                target="_blank"
+                className={cn(
+                  buttonVariants({ variant: "secondary" }),
+                  "items-center gap-2 text-foreground"
+                )}
+              >
+                View Plans <ExternalLink className="size-4" />
+              </Link>
+              {subscription?.status === "active" ? (
+                <div>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    // disabled={isPortalLoading}
+                    // onClick={handleRedirectToPortal}
+                  >
+                    Menage Subscription
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  type="button"
+                  variant="default"
+                  onClick={() => setIsOpen(true)}
+                >
+                  Upgrade ✨
+                </Button>
+              )}
             </div>
           </div>
         </div>

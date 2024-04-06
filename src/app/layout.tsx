@@ -1,15 +1,15 @@
 import { Inter } from "next/font/google";
 import type { Metadata } from "next";
+import { Toaster } from "sonner";
 
 import ThemeProvider from "@/lib/providers/theme.provider";
 import AppStateProvider from "@/lib/providers/app-state.provider";
-import { Toaster } from "sonner";
+import { SocketProvider } from "@/lib/providers/socket.provider";
 import { SupabaseUserProvider } from "@/lib/providers/supabase-user.provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import { SocketProvider } from "@/lib/providers/socket.provider";
 
 const inter = Inter({
   subsets: ["latin"],
