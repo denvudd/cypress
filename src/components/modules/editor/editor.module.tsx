@@ -6,15 +6,13 @@ import { toast } from "sonner";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Loader } from "lucide-react";
 
-import { deleteFile, updateFile } from "@/queries/file";
-import { deleteFolder, updateFolder } from "@/queries/folder";
 import { getAuthUser } from "@/queries/auth";
 
 import EditorBreadcrumbs from "./editor-breadcrumbs.module";
 import EditorEmojiPicker from "./editor-emoji-picker.module";
 import EditorBanner from "./editor-banner/editor-banner.module";
 import EditorBannerPanel from "./editor-banner/editor-banner-panel.module";
-import { Button } from "@/components/ui/button";
+import EditorDeletePanel from "./editor-delete-panel.module";
 import { Badge } from "@/components/ui/badge";
 import {
   Tooltip,
@@ -37,7 +35,7 @@ import { EditorRange, SocketEditorEvent } from "@/types/editor.types";
 import { TOOLBAR_OPTIONS } from "../../../lib/config/editor/modules";
 import { cn, generateColorFromEmail } from "@/lib/utils";
 import "quill/dist/quill.snow.css";
-import EditorDeletePanel from "./editor-delete-panel.module";
+
 interface EditorProps {
   targetId: string;
   dirDetails: File | Folder | Workspace;
@@ -412,32 +410,39 @@ const Editor: React.FC<EditorProps> = ({ dirDetails, dirType, targetId }) => {
             </Badge>
 
             <div className="flex items-center justify-center h-10">
-              {collaborators.map((collaborator) => (
-                <Tooltip key={collaborator.id}>
-                  <TooltipTrigger asChild>
-                    <Avatar
-                      className="-ml-3 flex border-none items-center justify-center size-8 rounded-full animate-in 
-                      fade-in-0 slide-in-from-right-[50%] zoom-in-95"
-                    >
-                      <AvatarImage
-                        src={collaborator.avatarUrl || ""}
-                        className="rounded-full"
-                      />
-                      <AvatarFallback
-                        className="text-white font-medium"
-                        style={{
-                          backgroundColor: generateColorFromEmail(
-                            collaborator.email
-                          ),
-                        }}
+              {collaborators.map((collaborator) => {
+                const userTruncatedEmail = collaborator.email
+                  ?.split("#")[0]
+                  .substring(0, 2)
+                  .toUpperCase();
+
+                return (
+                  <Tooltip key={collaborator.id}>
+                    <TooltipTrigger asChild>
+                      <Avatar
+                        className="-ml-3 flex border-none items-center justify-center size-8 rounded-full animate-in 
+                        fade-in-0 slide-in-from-right-[50%] zoom-in-95"
                       >
-                        {collaborator.email.substring(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                  </TooltipTrigger>
-                  <TooltipContent>{collaborator.email}</TooltipContent>
-                </Tooltip>
-              ))}
+                        <AvatarImage
+                          src={collaborator.avatarUrl || ""}
+                          className="rounded-full"
+                        />
+                        <AvatarFallback
+                          className="text-white font-medium"
+                          style={{
+                            backgroundColor: generateColorFromEmail(
+                              userTruncatedEmail
+                            ),
+                          }}
+                        >
+                          {userTruncatedEmail.substring(0, 2)}
+                        </AvatarFallback>
+                      </Avatar>
+                    </TooltipTrigger>
+                    <TooltipContent>{collaborator.email}</TooltipContent>
+                  </Tooltip>
+                );
+              })}
             </div>
           </div>
         </div>

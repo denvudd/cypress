@@ -5,8 +5,9 @@ import { LoginValidatorSchema } from "@/lib/validators/login.validator";
 import { cookies } from "next/headers";
 import { SignUpValidatorSchema } from "@/lib/validators/sign-up.validator";
 import { users } from "../../migrations/schema";
-import { ilike } from "drizzle-orm";
+import { eq, ilike } from "drizzle-orm";
 import db from "@/lib/supabase/db";
+import { User } from "@/types/supabase.types";
 
 /** Login user with credentials */
 export async function loginUser({ email, password }: LoginValidatorSchema) {
@@ -76,4 +77,31 @@ export async function searchUser(email: string) {
     .where(ilike(users.email, `${email}%`));
 
   return accounts;
+}
+
+/** Update user information */
+export async function updateUser(
+  newUser: Partial<User>,
+  userId: string
+) {
+  if (!userId) return undefined;
+
+  console.log("NEW USER", newUser)
+
+  try {
+    await db
+      .update(users)
+      .set(newUser)
+      .where(eq(users.id, userId));
+
+    return {
+      data: null,
+      error: null,
+    };
+  } catch (error) {
+    return {
+      data: null,
+      error: `Error ${error}`,
+    };
+  }
 }

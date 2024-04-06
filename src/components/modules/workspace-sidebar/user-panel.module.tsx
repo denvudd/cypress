@@ -7,7 +7,6 @@ import { getAuthUser } from "@/queries/auth";
 
 import LogoutButton from "@/components/global/logout-button.global";
 import ModeToggle from "@/components/global/mode-toggle.global";
-import CypressProfileIcon from "@/components/ui/icons/profile-icon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import { Subscription } from "@/types/supabase.types";
@@ -68,7 +67,7 @@ const UserPanel: React.FC<UserPanelProps> = async ({ subscription }) => {
               ),
             }}
           >
-            {userTruncatedEmail?.substring(0, 2).toUpperCase()}
+            {userTruncatedEmail?.substring(0, 2)}
           </AvatarFallback>
         </Avatar>
         <div className="flex flex-col">
