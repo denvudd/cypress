@@ -16,6 +16,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { generateColorFromEmail } from "@/lib/utils";
 
 interface UserPanelProps {
   subscription: Subscription | null;
@@ -49,13 +50,25 @@ const UserPanel: React.FC<UserPanelProps> = async ({ subscription }) => {
     avatarUrl: avatarPath,
   };
 
+  const userTruncatedEmail = user.email
+    ?.split("#")[0]
+    .substring(0, 2)
+    .toUpperCase();
+
   return (
     <article className="hidden sm:flex border border-muted/50 bg-sidebar/80 blured-light dark:blured justify-between items-center p-2 rounded-lg">
       <aside className="flex justify-center items-center gap-2">
         <Avatar>
           <AvatarImage src={profile.avatarUrl} />
-          <AvatarFallback>
-            <CypressProfileIcon />
+          <AvatarFallback
+            className="text-white font-medium"
+            style={{
+              backgroundColor: generateColorFromEmail(
+                userTruncatedEmail as string
+              ),
+            }}
+          >
+            {userTruncatedEmail?.substring(0, 2).toUpperCase()}
           </AvatarFallback>
         </Avatar>
         <div className="flex flex-col">
@@ -77,7 +90,7 @@ const UserPanel: React.FC<UserPanelProps> = async ({ subscription }) => {
           <TooltipContent>Log out</TooltipContent>
         </Tooltip>
         <Tooltip>
-          <TooltipTrigger asChild  >
+          <TooltipTrigger asChild>
             <ModeToggle />
           </TooltipTrigger>
           <TooltipContent>Switch theme</TooltipContent>

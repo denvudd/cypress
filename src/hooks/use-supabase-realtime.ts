@@ -214,15 +214,14 @@ export const useSupabaseRealtime = () => {
           let folderId = "";
 
           const folderExists = appState.workspaces.some((workspace) =>
-            workspace.folders.some((folder) =>
-              folder.files.some((file) => {
-                if (file.id === oldId.id) {
-                  workspaceId = workspace.id;
-                  folderId = folder.id;
-                  return true;
-                }
-              })
-            )
+            workspace.folders.some((folder) => {
+              if (folder.id === oldId.id) {
+                workspaceId = workspace.id;
+                folderId = folder.id;
+
+                return true;
+              }
+            })
           );
 
           if (folderExists && workspaceId && folderId) {
@@ -238,7 +237,6 @@ export const useSupabaseRealtime = () => {
         }
         case "UPDATE": {
           const {
-            folder_id: folderId,
             workspace_id: workspaceId,
             icon_id,
             id,
@@ -247,39 +245,41 @@ export const useSupabaseRealtime = () => {
             banner_url,
             in_favorite,
           } = newData as {
-            folder_id: string;
-            workspace_id: string;
-            id: string;
-            title: string;
-            icon_id: string;
-            in_trash: string;
-            in_favorite: string;
             banner_url: string;
+            created_at: string;
+            icon_id: string;
+            id: string;
+            in_favorite: string;
+            in_trash: string;
+            title: string;
+            workspace_id: string
           };
 
-          appState.workspaces.some((workspace) =>
-            workspace.folders.some((folder) =>
-              folder.files.some((file) => {
-                if (file.id === id) {
-                  dispatch({
-                    type: "UPDATE_FOLDER",
-                    payload: {
-                      workspaceId,
-                      folderId,
-                      folder: {
-                        title,
-                        iconId: icon_id,
-                        inTrash: in_trash,
-                        bannerUrl: banner_url,
-                        inFavorite: in_favorite,
-                      },
-                    },
-                  });
+          console.log("updated", in_trash);
+          console.log("data", newData);
 
-                  return true;
-                }
-              })
-            )
+          appState.workspaces.some((workspace) =>
+            workspace.folders.some((folder) => {
+              if (folder.id === id) {
+                console.log('folder', folder)
+                dispatch({
+                  type: "UPDATE_FOLDER",
+                  payload: {
+                    workspaceId,
+                    folderId: id,
+                    folder: {
+                      title,
+                      iconId: icon_id,
+                      inTrash: in_trash,
+                      bannerUrl: banner_url,
+                      inFavorite: in_favorite,
+                    },
+                  },
+                });
+
+                return true;
+              }
+            })
           );
 
           break;

@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Loader } from "lucide-react";
 
-import { deleteFile } from "@/queries/file";
+import { deleteFile, updateFile } from "@/queries/file";
 import { deleteFolder, updateFolder } from "@/queries/folder";
 import { getAuthUser } from "@/queries/auth";
 
@@ -37,6 +37,7 @@ import { EditorRange, SocketEditorEvent } from "@/types/editor.types";
 import { TOOLBAR_OPTIONS } from "../../../lib/config/editor/modules";
 import { cn, generateColorFromEmail } from "@/lib/utils";
 import "quill/dist/quill.snow.css";
+import EditorDeletePanel from "./editor-delete-panel.module";
 interface EditorProps {
   targetId: string;
   dirDetails: File | Folder | Workspace;
@@ -367,6 +368,17 @@ const Editor: React.FC<EditorProps> = ({ dirDetails, dirType, targetId }) => {
           leftPresences
         ).flat() as unknown as EditorCollaborator[];
 
+        // Remove cursor when user left the room
+        if (leftCollaborators[0].id !== user?.id) {
+          const userCursor = quill.getModule("cursors");
+          const allCursors: any[] = [];
+
+          userCursor.removeCursor(leftCollaborators[0].id);
+
+          allCursors.push(userCursor);
+          setLocalCursors(allCursors);
+        }
+
         if (leftCollaborators[0] && leftCollaborators[0].id !== user?.id) {
           toast.info(`${leftCollaborators[0]?.email} left the room.`);
         }
@@ -378,116 +390,14 @@ const Editor: React.FC<EditorProps> = ({ dirDetails, dirType, targetId }) => {
     };
   }, [targetId, quill, supabaseClient, user]);
 
-  // Restore file from Trash to workspace
-  const handleRestoreFile = async () => {
-    if (dirType === "file") {
-      if (!folderId || !workspaceId || !targetId) return undefined;
-
-      dispatch({
-        type: "UPDATE_FILE",
-        payload: {
-          file: {
-            inTrash: "",
-          },
-          fileId: targetId,
-          folderId,
-          workspaceId,
-        },
-      });
-
-      await updateFolder({ inTrash: "" }, targetId);
-    }
-
-    if (dirType === "folder") {
-      if (!folderId || !workspaceId) return undefined;
-
-      dispatch({
-        type: "UPDATE_FOLDER",
-        payload: {
-          folder: { inTrash: "" },
-          folderId: targetId,
-          workspaceId,
-        },
-      });
-    }
-  };
-
-  // Delete file permanently from Trash
-  const handleDeleteFile = async () => {
-    if (dirType === "file") {
-      if (!folderId || !workspaceId || !targetId) return undefined;
-
-      dispatch({
-        type: "DELETE_FILE",
-        payload: {
-          fileId: targetId,
-          folderId,
-          workspaceId,
-        },
-      });
-
-      await deleteFile(targetId);
-      router.replace(`/dashboard/${workspaceId}/${folderId}`);
-    }
-
-    if (dirType === "folder") {
-      if (!folderId || !workspaceId) return undefined;
-
-      dispatch({
-        type: "DELETE_FOLDER",
-        payload: {
-          folderId: targetId,
-          workspaceId,
-        },
-      });
-
-      await deleteFolder(targetId);
-      router.replace(`/dashboard/${workspaceId}`);
-    }
-
-    toast.success(
-      `${dirType === "file" ? "File" : "Folder"} deleted successfully!`
-    );
-  };
-
   return (
     <>
       <div className="relative">
-        {details?.inTrash && (
-          <article
-            className="py-2 z-40 bg-destructive flex md:flex-row flex-col justify-center items-center gap-4 flex-wrap 
-          slide-in-from-top-[48%] animate-in fade-in-0 zoom-in-95"
-          >
-            <div className="flex flex-col sm:flex-row gap-2 justify-between w-full px-4 items-center">
-              <div className="flex flex-col text-center sm:text-left">
-                <span className="text-white text-sm font-medium">
-                  This {dirType} in the trash.
-                </span>
-                <span className="text-white text-xs font-medium">
-                  {details.inTrash}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  size="sm"
-                  className="bg-transparent border-white text-white hover:bg-white hover:text-[#EB5757]"
-                  variant="outline"
-                  onClick={handleRestoreFile}
-                >
-                  Restore
-                </Button>
-                <Button
-                  size="sm"
-                  className="bg-transparent border-white text-white hover:bg-white hover:text-[#EB5757]"
-                  variant="outline"
-                  onClick={handleDeleteFile}
-                >
-                  Delete
-                </Button>
-              </div>
-            </div>
-          </article>
-        )}
+        <EditorDeletePanel
+          dirType={dirType}
+          inTrash={details?.inTrash}
+          targetId={targetId}
+        />
 
         <div className="flex flex-col-reverse text-sm sm:flex-row sm:justify-between justify-center sm:items-center sm:p-3 p-8">
           <EditorBreadcrumbs />
@@ -507,7 +417,7 @@ const Editor: React.FC<EditorProps> = ({ dirDetails, dirType, targetId }) => {
                   <TooltipTrigger asChild>
                     <Avatar
                       className="-ml-3 flex border-none items-center justify-center size-8 rounded-full animate-in 
-                    fade-in-0 slide-in-from-right-[50%] zoom-in-95"
+                      fade-in-0 slide-in-from-right-[50%] zoom-in-95"
                     >
                       <AvatarImage
                         src={collaborator.avatarUrl || ""}

@@ -54,7 +54,7 @@ const FolderDropdown: React.FC<FolderDropdownProps> = ({
 }) => {
   const router = useRouter();
   const { user } = useSupabaseUser();
-  const supabaseRealtimeFile = useSupabaseRealtime();
+  const supabaseRealtime = useSupabaseRealtime();
   const { state: appState, dispatch, workspaceId, folderId } = useAppState();
 
   const [isEditing, setIsEditing] = React.useState<boolean>(false);
