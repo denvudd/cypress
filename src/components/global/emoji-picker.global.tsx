@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import data from "@emoji-mart/data";
 import { Loader } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { useTheme } from "next-themes";
 
 const Picker = dynamic(() => import("@emoji-mart/react"), {
   ssr: false,
@@ -24,6 +25,8 @@ interface EmojiPickerProps {
 }
 
 const EmojiPicker: React.FC<EmojiPickerProps> = ({ children, getValue }) => {
+  const { theme } = useTheme();
+
   const handleSelectEmoji = (selectedEmoji: string) => {
     if (getValue) {
       getValue(selectedEmoji);
@@ -40,8 +43,9 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({ children, getValue }) => {
             onEmojiSelect={(emoji: any) => handleSelectEmoji(emoji.native)}
             previewPosition="none"
             set="native"
+            theme={theme}
             navPosition="bottom"
-            emojiButtonRadius="6px"     
+            emojiButtonRadius="6px"
             emojiButtonColors={[
               "rgba(155,223,88,.7)",
               "rgba(149,211,254,.7)",
