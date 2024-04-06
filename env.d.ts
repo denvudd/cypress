@@ -10,5 +10,6 @@ namespace NodeJS {
     STRIPE_SECRET_KEY: string | undefined;
     STRIPE_WEBHOOK_SECRET: string | undefined;
     NEXT_PUBLIC_RAILWAY_URL: string | undefined;
+    STRIPE_WEBHOOK_SECRET_LIVE: string | undefined;
   }
 }
