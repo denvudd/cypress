@@ -22,7 +22,6 @@ export async function getProductsWithPrice() {
       error: null,
     };
   } catch (error) {
-    console.log(error);
     return {
       data: [],
       error,

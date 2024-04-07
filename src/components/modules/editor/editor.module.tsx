@@ -183,7 +183,6 @@ const Editor: React.FC<EditorProps> = ({ dirDetails, dirType, targetId }) => {
     const handleChangeSelection = (cursorId: string) => {
       return (range: EditorRange, oldRange: EditorRange, source: string) => {
         if (source !== "user" && !cursorId) return undefined;
-        console.log(range, oldRange);
 
         socket.emit(
           SocketEditorEvent.SendCursorMove,

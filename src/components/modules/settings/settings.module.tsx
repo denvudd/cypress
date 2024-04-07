@@ -137,8 +137,7 @@ const Settings: React.FC<SettingsProps> = ({ subscription }) => {
 
       window.location.assign(url);
     } catch (error) {
-      console.log("Redirect to customer portal error: ", error);
-      // router.push("/error");
+      router.push("/error");
     } finally {
       setIsPortalLoading(false);
     }

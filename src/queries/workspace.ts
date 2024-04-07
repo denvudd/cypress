@@ -54,7 +54,6 @@ export async function createWorkspace(workspace: Workspace) {
 
     return { data: null, error: null };
   } catch (error) {
-    console.log(error);
     return { data: null, error: "Error" };
   }
 }

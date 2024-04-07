@@ -68,7 +68,6 @@ const WorkspaceCreator: React.FC<WorkspaceCreatorProps> = ({}) => {
       if (permissions === "shared") {
         await createWorkspace(payload);
         const res = await addCollaborators(collaborators, uniqueId);
-        console.log(res);
         router.refresh();
       }
 

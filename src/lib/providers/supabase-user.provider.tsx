@@ -34,7 +34,6 @@ export const SupabaseUserProvider: React.FC<React.PropsWithChildren> = ({
       } = await supabaseClient.auth.getUser();
 
       if (user) {
-        console.log(user)
         setUser(user);
 
         const { data, error } = await getUserSubscriptionStatus(user.id);

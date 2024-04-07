@@ -6,6 +6,9 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { MailCheck } from "lucide-react";
+
+import { signUpUser } from "@/queries/auth";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -26,8 +29,6 @@ import { cn } from "@/lib/utils";
 
 import CypressLogo from "../../../../public/cypresslogo.svg";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { MailCheck } from "lucide-react";
-import { signUpUser } from "@/queries/auth";
 
 interface SignUpPageProps {}
 

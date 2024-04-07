@@ -43,8 +43,6 @@ const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = async ({
     await getUserSubscriptionStatus(user.id);
   const { data: folders, error: foldersError } = await getFolders(workspaceId);
 
-  console.log("subscriptionError", subscriptionError);
-  console.log("foldersError", foldersError);
   if (subscriptionError || foldersError) redirect("/error");
 
   const [privateWorkspaces, collaboratingWorkspaces, sharedWorkspaces] =

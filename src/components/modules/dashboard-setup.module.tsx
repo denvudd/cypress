@@ -118,7 +118,6 @@ const DashboardSetup: React.FC<DashboardSetupProps> = ({
 
       router.replace(`/dashboard/${newWorkspace.id}`);
     } catch (error) {
-      console.log(error, "Error");
       toast.error("Could not create your workspace", {
         description:
           "Oops! Something went wrong, and we couldn't create your workspace. Try again or come back later.",

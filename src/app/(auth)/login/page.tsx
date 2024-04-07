@@ -47,7 +47,6 @@ function LoginPage() {
 
     if (error) {
       form.reset();
-      console.log(error)
       setSubmitError(error);
 
       return undefined;

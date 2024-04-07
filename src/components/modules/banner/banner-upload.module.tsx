@@ -126,8 +126,6 @@ const BannerUpload: React.FC<BannerUploadProps> = ({
     } catch (error) {}
   };
 
-  console.log(errors);
-
   return (
     <Dialog>
       <DialogTrigger

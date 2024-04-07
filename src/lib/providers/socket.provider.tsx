@@ -41,9 +41,6 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
-  console.log("Socket: ", socket);
-  console.log("Is socket connected: ", isConnected);
-
   return (
     <SocketContext.Provider value={{ socket, isConnected }}>
       {children}

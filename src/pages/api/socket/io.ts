@@ -25,7 +25,6 @@ const ioHandler = (req: NextApiRequest, res: NextApiResponseServerIO) => {
       });
 
       socket.on(SocketEditorEvent.SendChanges, (deltas, fileId) => {
-        console.log("Socket: Change");
         socket
           .to(fileId)
           .emit(SocketEditorEvent.ReceiveChanges, deltas, fileId);

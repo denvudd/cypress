@@ -11,7 +11,6 @@ import { User } from "@/types/supabase.types";
 
 /** Login user with credentials */
 export async function loginUser({ email, password }: LoginValidatorSchema) {
-  console.log("WORKS WORKS")
   const supabaseClient = createRouteHandlerClient({ cookies });
 
   const response = await supabaseClient.auth.signInWithPassword({
@@ -85,8 +84,6 @@ export async function updateUser(
   userId: string
 ) {
   if (!userId) return undefined;
-
-  console.log("NEW USER", newUser)
 
   try {
     await db
