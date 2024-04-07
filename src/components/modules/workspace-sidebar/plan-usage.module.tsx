@@ -3,11 +3,11 @@
 import React from "react";
 
 import { Progress } from "@/components/ui/progress";
+import CypressDiamondIcon from "@/components/ui/icons/diamond-icon";
 
 import { useAppState } from "@/hooks/use-app-state";
 import { getUsagePercantage } from "@/lib/utils";
 import { Subscription } from "@/types/supabase.types";
-import CypressDiamondIcon from "@/components/ui/icons/diamond-icon";
 
 interface PlanUsageProps {
   foldersLength: number;
@@ -36,8 +36,8 @@ const PlanUsage: React.FC<PlanUsageProps> = ({
   }, [appState, workspaceId]);
 
   return (
-    <article className="mb-4 p-2">
-      {subscription?.status !== "active" && (
+    subscription?.status !== "active" && (
+      <article className="p-2">
         <div className="flex gap-2 text-muted-foreground mb-2 items-center">
           <div className="size-4">
             <CypressDiamondIcon />
@@ -47,11 +47,9 @@ const PlanUsage: React.FC<PlanUsageProps> = ({
             <small>{usagePercentage.toFixed(0)}% / 100%</small>
           </div>
         </div>
-      )}
-      {subscription?.status !== "active" && (
         <Progress value={usagePercentage} className="h-1.5" />
-      )}
-    </article>
+      </article>
+    )
   );
 };
 

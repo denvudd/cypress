@@ -38,7 +38,7 @@ import { Input } from "@/components/ui/input";
 import { useSupabaseUser } from "@/hooks/user-supabase-user";
 import { useAppState } from "@/hooks/use-app-state";
 import { useSubscriptionModal } from "@/hooks/use-subscription-modal";
-import { cn, generateColorFromEmail } from "@/lib/utils";
+import { cn, generateColorFromEmail, postStripeData } from "@/lib/utils";
 
 import { PermissionsKey } from "@/types/global.type";
 import { Subscription, User, Workspace } from "@/types/supabase.types";
@@ -57,7 +57,7 @@ const Settings: React.FC<SettingsProps> = ({ subscription }) => {
   const supabaseClient = createClientComponentClient();
   const { user } = useSupabaseUser();
   const { state: appState, workspaceId, dispatch } = useAppState();
-  const { setIsOpen } = useSubscriptionModal();
+  const { setIsOpen: setIsSubscriptionModalOpen } = useSubscriptionModal();
 
   const [permission, setPermission] = React.useState<PermissionsKey>("private");
   const [collaborators, setCollaborators] = React.useState<User[]>([]);
@@ -70,6 +70,7 @@ const Settings: React.FC<SettingsProps> = ({ subscription }) => {
   const [isProfilePicLoading, setIsProfilePicLoading] =
     React.useState<boolean>(false);
   const [isLogoUploading, setIsLogoUploading] = React.useState<boolean>(false);
+  const [isPortalLoading, setIsPortalLoading] = React.useState<boolean>(false);
 
   const timerRef = React.useRef<ReturnType<typeof setTimeout>>();
   const userTruncatedEmail = React.useMemo(() => {
@@ -126,7 +127,32 @@ const Settings: React.FC<SettingsProps> = ({ subscription }) => {
 
   if (!workspaceId) return undefined;
 
+  const handleRedirectToCustomerPortal = async () => {
+    setIsPortalLoading(true);
+
+    try {
+      const { url, error } = await postStripeData({
+        url: `/api/create-portal-link`,
+      });
+
+      window.location.assign(url);
+    } catch (error) {
+      console.log("Redirect to customer portal error: ", error);
+      // router.push("/error");
+    } finally {
+      setIsPortalLoading(false);
+    }
+  };
+
   const handleAddCollaborators = async (user: User) => {
+    if (!workspaceId) return undefined;
+
+    if (subscription?.status !== "active" && collaborators.length >= 2) {
+      setIsSubscriptionModalOpen(true);
+
+      return undefined;
+    }
+
     await addCollaborators([user], workspaceId);
     setCollaborators([...collaborators, user]);
 
@@ -500,17 +526,18 @@ const Settings: React.FC<SettingsProps> = ({ subscription }) => {
                   <Button
                     type="button"
                     variant="secondary"
-                    // disabled={isPortalLoading}
-                    // onClick={handleRedirectToPortal}
+                    disabled={isPortalLoading}
+                    isLoading={isPortalLoading}
+                    onClick={handleRedirectToCustomerPortal}
                   >
-                    Menage Subscription
+                    Manage Subscription
                   </Button>
                 </div>
               ) : (
                 <Button
                   type="button"
                   variant="default"
-                  onClick={() => setIsOpen(true)}
+                  onClick={() => setIsSubscriptionModalOpen(true)}
                 >
                   Upgrade ✨
                 </Button>

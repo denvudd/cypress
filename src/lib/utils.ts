@@ -42,7 +42,7 @@ export function formatPrice(price: Price) {
     style: "currency",
     currency: price.currency || undefined,
     minimumFractionDigits: 0,
-  }).format(price?.unitAmount || 0 / 100);
+  }).format((price?.unitAmount || 0) / 100);
 
   return priceString;
 }
@@ -71,7 +71,7 @@ export async function postStripeData({
   data,
 }: {
   url: string;
-  data: { price: Price };
+  data?: { price: Price };
 }) {
   const response: Response = await fetch(url, {
     method: "POST",

@@ -22,6 +22,27 @@
       "when": 1711992132375,
       "tag": "0002_slippery_radioactive_man",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1712474760816,
+      "tag": "0003_panoramic_thaddeus_ross",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1712474985844,
+      "tag": "0004_thin_ricochet",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1712475882215,
+      "tag": "0005_tricky_natasha_romanoff",
+      "breakpoints": true
     }
   ]
 }

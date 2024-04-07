@@ -1,0 +1,1 @@
+ALTER TABLE "folders" ADD COLUMN "in_favorite" text;

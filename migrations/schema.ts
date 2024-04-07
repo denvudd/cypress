@@ -1,5 +1,5 @@
 import { pgTable, pgEnum, uuid, timestamp, foreignKey, text, jsonb, boolean, bigint, integer } from "drizzle-orm/pg-core"
-  import { sql } from "drizzle-orm"
+  import { relations, sql } from "drizzle-orm"
 
 export const keyStatus = pgEnum("key_status", ['default', 'valid', 'invalid', 'expired'])
 export const keyType = pgEnum("key_type", ['aead-ietf', 'aead-det', 'hmacsha512', 'hmacsha256', 'auth', 'shorthash', 'generichash', 'kdf', 'secretbox', 'secretstream', 'stream_xchacha20'])
@@ -19,18 +19,6 @@ export const collaborators = pgTable("collaborators", {
 	userId: uuid("user_id").notNull(),
 });
 
-export const files = pgTable("files", {
-	id: uuid("id").defaultRandom().primaryKey().notNull(),
-	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
-	title: text("title").notNull(),
-	iconId: text("icon_id").notNull(),
-	data: text("data"),
-	inTrash: text("in_trash"),
-	workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id, { onDelete: "cascade" } ),
-	folderId: uuid("folder_id").notNull().references(() => folders.id, { onDelete: "cascade" } ),
-	bannerUrl: text("banner_url"),
-});
-
 export const folders = pgTable("folders", {
 	id: uuid("id").defaultRandom().primaryKey().notNull(),
 	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
@@ -40,6 +28,18 @@ export const folders = pgTable("folders", {
 	inTrash: text("in_trash"),
 	workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id, { onDelete: "cascade" } ),
 	inFavorite: text("in_favorite"),
+	bannerUrl: text("banner_url"),
+});
+
+export const files = pgTable("files", {
+	id: uuid("id").defaultRandom().primaryKey().notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+	title: text("title").notNull(),
+	iconId: text("icon_id").notNull(),
+	data: text("data"),
+	inTrash: text("in_trash"),
+	workspaceId: uuid("workspace_id").notNull().references(() => workspaces.id, { onDelete: "cascade" } ),
+	folderId: uuid("folder_id").notNull().references(() => folders.id, { onDelete: "cascade" } ),
 	bannerUrl: text("banner_url"),
 });
 
@@ -120,3 +120,14 @@ export const subscriptions = pgTable("subscriptions", {
 	trialStart: timestamp("trial_start", { withTimezone: true, mode: 'string' }).default(sql`now()`),
 	trialEnd: timestamp("trial_end", { withTimezone: true, mode: 'string' }).default(sql`now()`),
 });
+
+export const productsRelations = relations(products, ({ many }) => ({
+	prices: many(prices),
+  }));
+  
+  export const pricesRelations = relations(prices, ({ one }) => ({
+	product: one(products, {
+	  fields: [prices.productId],
+	  references: [products.id],
+	}),
+  }));
