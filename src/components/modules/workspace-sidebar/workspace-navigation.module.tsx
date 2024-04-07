@@ -6,6 +6,7 @@ import CypressHomeIcon from "@/components/ui/icons/home-icon";
 import CypressTrashIcon from "@/components/ui/icons/trash-icon";
 import Settings from "../settings/settings.module";
 import { Subscription } from "@/types/supabase.types";
+import Trash from "../trash/trash.module";
 
 interface WorkspaceNavigationProps {
   workspaceId: string;
@@ -33,15 +34,7 @@ const WorkspaceNavigation: React.FC<WorkspaceNavigationProps> = ({
 
         <Settings subscription={subscription} />
 
-        <li>
-          <Link
-            className="group/native flex items-center transition-all gap-2"
-            href={`/dashboard/${workspaceId}`}
-          >
-            <CypressTrashIcon className="size-5" />
-            <span className="text-sm font-medium">Trash</span>
-          </Link>
-        </li>
+        <Trash />
       </ul>
     </nav>
   );
