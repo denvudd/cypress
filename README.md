@@ -1,36 +1,30 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# SaaS Notion Clone with Realtime cursors, Nextjs 13, Stripe, Drizzle ORM, Tailwind, Supabase, Sockets
 
-## Getting Started
+> [!CAUTION]
+> **Unfortunately, there is a delay of 1 minute before the cold start of the application. It's not me but a Render free tier. I can't deploy this app on Vercel because they don't support web sockets and serverless, so I deployed it on Render (because it's free).** 
 
-First, run the development server:
+![Application Logo](https://lh3.googleusercontent.com/fife/ALs6j_F0xPc32cWU-LPpt2FdP03PxnornNzdDAGjM190Ajki1b9RZA7pO3-j4EnvsrPmeMXlp1hkTzVov_vvUqPMD3tK0dvwgJpbL8fZKEmGmXkIkJLB6PzrPum3zVFORQdR5GGRsAAEiM50BgbQv474slZYGSfX0OhuXfXSNY7Zp3Z02XB8UmW5sFMj6jiAqdVpgfQoBA035p55FD1Ed0zxXfxET1zooBGNgmUXStyRGk5FUOV6vMivGxOawZZSjqGYylvnlnW7TziZ1qxnscXSt285IAGJMarkz92qliPK8M8Dluppr4WWupT2bFWAUnV4vKkvuLHRNf6DzrPYdW4x90XE2NuBHQ6umXfQENm8uZlyd04c7h3ZFWMa75Nlmm07ONiT3-Urs6WX3gbM0T_dJUckNlftjn9fQK3W52ouZTHaWqQPPaSLyXjvog-Sjgtg_Jo-_c8nxm4cB1IbLyVOAfxOP8kUmF6H9hiS7hH_JhkZmTWELpgxRnvOfNkYY-qxtRscEuN_I4ua3u8dmSxXZAbhx4AQXVdhSoBUHf9BeuxzwE_GzFeE2-yGXRK5B13k4zbKv6b_1-D_fZlreFojB87UZfOFkYkxBXiXvsKjyWrFfhUdu4hHqWEy6qAbt-I6BwP4mBqpdOZx1eTcgnLI_-ROXK-zjV-sttPh0KBKU5X_Q8A2yabZtwGXlaXTCdYM49cXmIIVRXo53VdAe54schzFoe7EfLY_By4fd1hh6qKbq_oZGh8mxBbQ2xHtAo5ZQTDYtsgc26H_9T756-e0N7tSi0ahNzpQEGuzqPI5VcruzariAgwzBzblcA8sWQWtQZeiaghyHXDsJcaA5lZ06jiUvrbNvgUqs9MXVezRpJAphIai7OtFKztiMWUhiPDCZfjIrt4rBu6bpG-LpfuvY45wDmoBsYPXnejMdDFaIKEuuP9EpNTY9OzjtHy2biYfxsqmikGQu83Mt3pybT1OyKt4BjeYIgqpwuKXRgHS1iVRamYwOdUpeqQ2jBqdBZcjUNtVW_Hae-ZmF4crY0nIX-n_-b8krIJsFX1F-m-TYn07Pu8or8pUvrdq_3FXjqO88s_lsGpuX9d9bfAHBSp6I6Sd6yBA9D-GTX4CvF0hgxtpBaIE3YIuCte7hFVrLBtCSao0VJNwWhg5xokwOd8kUJth_Nitg1-BetDj0RnjmqltPYMHr1U9nSf7Idav_YYW2lWzz5FGJWw_CPaRPXJQ93Jnb6X0CpLGnUFgtXw4m83_2Nv0pPAvP22cWDF33mnBL9xLFapbQ2wGjNXkOk30IJ6a5NMmDmVEe4aokTRQe-wb9BMZ8KrwNrNhX5s9DgxnB9aDcmbQPXrKuDEYDNj0RVFlVE89cjld1zJpn-OmXaonkqA7QG20L0PemvvxH_mURmHOPpESZeyskzn3MkYC1lBPdwh6skCSytFkMkRYkZ3lErSfUvEOj7nBDykDtbxjmBTEFg11d4xgDhT8MTa6jxRTAtdwq4_777v4qT7f9u4nWLY_mOlU0vOtZR-Ji0xDuzr9U_RV1jK7Ksrf6FFOH_sGfMMM2CTUth57WebFFmk2eV30xGdFAiuvjXn2G71t9i-thodpBaXEO9kna8Ofme52Bhf4fDSmqqeKPAl6DmWVq-dKziNnjbyw-kxIbqs-PUOVkYzh6baQReWXztYYbOnVOoynXXy6-QnoXzdKF-lllE1tfNLy4jtK=w1920-h919)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Features in this application.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- 🤯 Real-time cursors
+- 📝 Real-time text selection
+- ⏱️ Real-time database and collaboration
+- 🟢 Real-time presence
+- 🗑️ Move to trash functionality
+- 😜 Custom emoji picker
+- 🌙 Light mode dark mode
+- 🚨 Next.js 13 app router
+- 🗺️ Creating free plan restrictions
+- 💰 Take monthly payments
+- 📧 Custom email 2FA invitation
+- ⚡️ Supabase Row level policy
+- 👨‍👨‍👧‍👦 Real-time Collaboration
+- 👾 Deployment
+- 🤑 Custom Rich text editor
+- 📚 Update profile settings
+- 📍 Manage payments in a portal
+- 🔐 Custom Authentication
+- ✳️ Websockets
+- 📣 Optimistic UI
+- 📱 Responsive design
